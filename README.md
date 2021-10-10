@@ -1,4 +1,4 @@
-# SLE API Game Systems
+# SLE Game Systems API
 
 The SLE Game Systems is a pack of APIs made to work with Unity® Engine with the main focus on performance by defaulft.
 
