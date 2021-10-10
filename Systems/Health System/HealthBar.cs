@@ -30,7 +30,11 @@ namespace SLE.Systems.Health
         /// <summary>
         /// [Internal usage only]
         /// </summary>
-        internal int healthComponentID { get; set; }
+        internal int healthComponentID;
+        /// <summary>
+        /// [Internal usage only]
+        /// </summary>
+        internal GameObject generatedHealthBar;
     }
 }
 

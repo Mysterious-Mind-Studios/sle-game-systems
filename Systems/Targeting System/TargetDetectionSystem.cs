@@ -18,6 +18,9 @@ namespace SLE.Systems.Targeting
 
         public TargetDetectionSystem()
         {
+            if (_instance)
+                _instance.Dispose();
+
             _instance = this;
 
             activeDetectors   = new HashSet<TargetDetector>(GameObject.FindObjectsOfType<TargetDetector>());

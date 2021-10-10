@@ -20,6 +20,9 @@ namespace SLE.Systems.Weapon
 
         public WeaponSystem()
         {
+            if (_instance)
+                _instance.Dispose();
+
             _instance = this;
 
             activeWeapons = new HashSet<Weapon>(GameObject.FindObjectsOfType<Weapon>());

@@ -10,31 +10,49 @@ using Unity.Jobs;
 
 namespace SLE.Systems.Health
 {
+    using SLE.Events;
     using SLE.Systems.Health.Data;
     using SLE.Systems.Health.Jobs;
 
     public unsafe sealed class HealthSystem : SystemBase
     {
-        internal const string HP_BAR_PREFAB_NAME  = "HealthBarPrefab";
-        internal const string HP_BAR_FILL_GO_NAME = "BarFill";
+        private const string HP_BAR_PREFAB_NAME  = "HealthBarPrefab";
+        private const string HP_BAR_FILL_GO_NAME = "BarFill";
 
         private static HealthSystem _instance;
         private static Transform    _mainCameraTransform;
         private static GameObject   _hpBarPrefab;
 
+        private static bool healthBarsEnabled = true;
+
+        private static event OnObjectChange<bool> ToggleHealthBars;
+
         /// <summary>
         /// This is a reference to the first found 'MainCamera' game object. This value can be changed.
         /// </summary>
-        internal static Transform mainCameraTransform { get => _mainCameraTransform; }
+        public static Transform mainCameraTransform { get => _mainCameraTransform; }
         /// <summary>
         /// This is not an active GameObject. This is just a reference to the Prefab asset.
         /// </summary>
-        internal static GameObject healthBarPrefab { get => _hpBarPrefab; }
+        public static GameObject healthBarPrefab { get => _hpBarPrefab; }
 
-        public static bool displayHealthBars = true;
+        public static HealthSystem current => _instance;
+
+        public static bool displayHealthBars
+        {
+            get => healthBarsEnabled;
+            set
+            {
+                healthBarsEnabled = value;
+                ToggleHealthBars(healthBarsEnabled);
+            }
+        }
 
         public HealthSystem()
         {
+            if (_instance)
+                _instance.Dispose();
+
             _instance = this;
 
             _hpBarPrefab         = Resources.Load<GameObject>(HP_BAR_PREFAB_NAME);
@@ -73,26 +91,28 @@ namespace SLE.Systems.Health
                     HealthBar healthBar = health.GetComponent<HealthBar>();
                     if (healthBar && healthBar.enabled)
                     {
-                        Transform generatedHealthBarGO = GameObject.Instantiate(_hpBarPrefab, healthBar.barAnchor.position, Quaternion.identity).transform;
-                        Transform barFillTransform     = generatedHealthBarGO.Find(HP_BAR_FILL_GO_NAME);
-
                         healthBar._id = healthBarIndex;
                         healthBar.healthComponentID = healthIndex;
+                        healthBar.generatedHealthBar = GameObject.Instantiate(_hpBarPrefab, healthBar.barAnchor.position, Quaternion.identity);
+
+                        Transform barFillTransform = healthBar.generatedHealthBar.transform.Find(HP_BAR_FILL_GO_NAME);
 
 #if UNITY_EDITOR
-                        generatedHealthBarGO.name = $"[Auto-Generated] {healthBar.gameObject.name} Health Bar";
+                        healthBar.generatedHealthBar.name = $"[Auto-Generated] {healthBar.gameObject.name} Health Bar";
 #endif
-                        generatedHealthBarGO.transform.localScale = healthBar.barScale;
+                        healthBar.generatedHealthBar.transform.localScale = healthBar.barScale;
 
                         if (healthBar.billboard)
-                            generatedHealthBarGO.transform.forward = -_mainCameraTransform.forward;
+                            healthBar.generatedHealthBar.transform.forward = -_mainCameraTransform.forward;
 
                         _cacheHealthBars[healthBarIndex] = healthBar;
                         _cacheHealthBarData[healthBarIndex] = new HealthBarData(in healthBar);
 
                         healthBarAnchorList.Add(healthBar.barAnchor);
-                        healthBarTransformList.Add(generatedHealthBarGO);
+                        healthBarTransformList.Add(healthBar.generatedHealthBar.transform);
                         healthBarFillTransformList.Add(barFillTransform);
+
+                        ToggleHealthBars += healthBar.generatedHealthBar.gameObject.SetActive;
 
                         healthBarIndex++;
                     }
@@ -114,13 +134,13 @@ namespace SLE.Systems.Health
         HashSet<Health>    activeHealths;
         HashSet<HealthBar> activeHealthBars;
 
-        bool locked;
-        bool shouldRunUpdate;
+        bool detectedChanges = false;
 
         // --- Cache data --- //
 
         Health[]    _cacheHealths;
         HealthBar[] _cacheHealthBars;
+        Transform[] _cacheGeneratedBars; // Just to keep track of the generated bars and prevent them from being collected.
 
         HealthData[]    _cacheHealthData;
         HealthBarData[] _cacheHealthBarData;
@@ -135,12 +155,16 @@ namespace SLE.Systems.Health
         {
             ref HealthData healthData = ref _cacheHealthData[health._id];
 
-            if(health.maxHealth != healthData.max ||
-               health.currentHealth != healthData.current)
+            if(health._currentHealthPoints == 0)
             {
-                healthData      = new HealthData(health);
-                shouldRunUpdate = true;
+                switch(health.onZeroHealth)
+                {
+
+                }
             }
+
+            healthData = new HealthData(health);
+            detectedChanges = true;
         }
 
         protected override void Dispose(bool disposing)
@@ -177,7 +201,8 @@ namespace SLE.Systems.Health
 
         public override JobHandle OnJobUpdate(float time, float deltaTime, ref JobHandle handle)
         {
-            if (locked) return handle;
+            if (!healthBarsEnabled) return handle;
+            if (!detectedChanges)   return handle;
             
             int length = _cacheHealthBars.Length;
             
@@ -206,6 +231,8 @@ namespace SLE.Systems.Health
                     };
 
                     handle = updateHealthBarFillTransformJob.Schedule(healthBarFillTransformList, updateHealthBarsTransformJobHandle);
+
+                    detectedChanges = false;
 
                     return handle;
                 }
