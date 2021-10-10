@@ -1,9 +1,8 @@
 ﻿
+
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Jobs;
 
 using Unity.Jobs;
@@ -11,12 +10,12 @@ using Unity.Jobs;
 
 namespace SLE.Systems.Health
 {
-    using SLE.Systems.Health.Utils;
     using SLE.Systems.Health.Data;
+    using SLE.Systems.Health.Jobs;
 
     public unsafe sealed class HealthSystem : SystemBase
     {
-        internal const string HP_BAR_PREFAB_NAME  = "HealthBar v2";
+        internal const string HP_BAR_PREFAB_NAME  = "HealthBarPrefab";
         internal const string HP_BAR_FILL_GO_NAME = "BarFill";
 
         private static HealthSystem _instance;
@@ -47,12 +46,15 @@ namespace SLE.Systems.Health
             int hLength  = activeHealths.Count;
             int hbLength = activeHealthBars.Count;
             
-            _cacheHealths       = new Health[hLength];
+            _cacheHealths    = new Health[hLength];
+            _cacheHealthData = new HealthData[hLength];
+
             _cacheHealthBars    = new HealthBar[hbLength];
             _cacheHealthBarData = new HealthBarData[hbLength];
 
             healthBarAnchorList    = new TransformAccessArray(hbLength);
             healthBarTransformList = new TransformAccessArray(hbLength);
+            healthBarFillTransformList = new TransformAccessArray(hbLength);
 
             activeHealths.CopyTo(_cacheHealths);
 
@@ -66,28 +68,31 @@ namespace SLE.Systems.Health
                 if (health.enabled)
                 {
                     health._id = healthIndex;
+                    _cacheHealthData[healthIndex] = new HealthData(health);
 
                     HealthBar healthBar = health.GetComponent<HealthBar>();
                     if (healthBar && healthBar.enabled)
                     {
-                        Transform genBarObjectTransform = GameObject.Instantiate(_hpBarPrefab, healthBar.barAnchor.position, Quaternion.identity).transform;
+                        Transform generatedHealthBarGO = GameObject.Instantiate(_hpBarPrefab, healthBar.barAnchor.position, Quaternion.identity).transform;
+                        Transform barFillTransform     = generatedHealthBarGO.Find(HP_BAR_FILL_GO_NAME);
 
                         healthBar._id = healthBarIndex;
                         healthBar.healthComponentID = healthIndex;
 
 #if UNITY_EDITOR
-                        genBarObjectTransform.name = $"[Auto-Generated] {healthBar.gameObject.name} Health Bar";
+                        generatedHealthBarGO.name = $"[Auto-Generated] {healthBar.gameObject.name} Health Bar";
 #endif
-                        genBarObjectTransform.transform.localScale = healthBar.barScale;
+                        generatedHealthBarGO.transform.localScale = healthBar.barScale;
 
                         if (healthBar.billboard)
-                            genBarObjectTransform.transform.forward = -_mainCameraTransform.forward;
+                            generatedHealthBarGO.transform.forward = -_mainCameraTransform.forward;
 
                         _cacheHealthBars[healthBarIndex] = healthBar;
                         _cacheHealthBarData[healthBarIndex] = new HealthBarData(in healthBar);
 
                         healthBarAnchorList.Add(healthBar.barAnchor);
-                        healthBarTransformList.Add(genBarObjectTransform);
+                        healthBarTransformList.Add(generatedHealthBarGO);
+                        healthBarFillTransformList.Add(barFillTransform);
 
                         healthBarIndex++;
                     }
@@ -95,6 +100,8 @@ namespace SLE.Systems.Health
                     healthIndex++;
                 }
             }
+
+            Health.OnHealthChange += OnHealthChangeSignalUpdate;
 
             Resources.UnloadUnusedAssets();
         }
@@ -120,6 +127,7 @@ namespace SLE.Systems.Health
 
         TransformAccessArray healthBarAnchorList;
         TransformAccessArray healthBarTransformList;
+        TransformAccessArray healthBarFillTransformList;
 
         // --- Cache data --- //
 
@@ -144,16 +152,25 @@ namespace SLE.Systems.Health
 
                 if (healthBarTransformList.isCreated)
                     healthBarTransformList.Dispose();
+
+                if (healthBarFillTransformList.isCreated)
+                    healthBarFillTransformList.Dispose();
             }
 
             _instance = null;
             _hpBarPrefab = null;
             _mainCameraTransform = null;
+
             activeHealths = null;
             activeHealthBars = null;
+
             _cacheHealths = null;
+            _cacheHealthData = null;
+
             _cacheHealthBars = null;
-            _cacheHealthBarData = null; 
+            _cacheHealthBarData = null;
+
+            Health.OnHealthChange -= OnHealthChangeSignalUpdate;
 
             base.Dispose(disposing);
         }
@@ -171,7 +188,7 @@ namespace SLE.Systems.Health
                     healthBarDataPtr = healthBarDataPtr
                 };
 
-                JobHandle updateHealthBarJobhandle = updateHealthBarDataJob.Schedule(healthBarAnchorList, handle);
+                JobHandle updateHealthBarDataJobhandle = updateHealthBarDataJob.Schedule(healthBarAnchorList, handle);
             
                 UpdateHealthBarTransformJob updateHealthBarsTransformJob = new UpdateHealthBarTransformJob
                 {
@@ -179,14 +196,19 @@ namespace SLE.Systems.Health
                     mainCameraForward = _mainCameraTransform.forward
                 };
             
-                handle = updateHealthBarsTransformJob.Schedule(healthBarTransformList, updateHealthBarJobhandle);
+                JobHandle updateHealthBarsTransformJobHandle = updateHealthBarsTransformJob.Schedule(healthBarTransformList, updateHealthBarDataJobhandle);
 
-                UpdateHealthBarFillTransformJob updateHealthBarFillTransformJob = new UpdateHealthBarFillTransformJob
+                fixed (HealthData* healthDataPtr = &_cacheHealthData[0])
                 {
+                    UpdateHealthBarFillTransformJob updateHealthBarFillTransformJob = new UpdateHealthBarFillTransformJob
+                    {
+                        healthDataPtr = healthDataPtr
+                    };
 
-                };
-            
-                return handle;
+                    handle = updateHealthBarFillTransformJob.Schedule(healthBarFillTransformList, updateHealthBarsTransformJobHandle);
+
+                    return handle;
+                }
             }
         }
     }

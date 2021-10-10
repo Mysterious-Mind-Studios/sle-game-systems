@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 3761651781719503443}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 200, y: 25, z: 1}
+  m_LocalScale: {x: 1.6, y: 0.2, z: 1}
   m_Children: []
   m_Father: {fileID: 1808089922170281903}
   m_RootOrder: 1
@@ -50,7 +50,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 7881ef5a1c9f25a479e93966e6cbceb3, type: 2}
+  - {fileID: 2100000, guid: 231ae5c9248b9684293e286d31649a36, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -71,7 +71,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: 479bfc66ad012ca4293d5f4743d630a7, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 95c9fd6a1be5f374c8e046d339a2712a, type: 3}
   m_Color: {r: 0.4245283, g: 0.4245283, b: 0.4245283, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -92,7 +92,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1808089922170281903}
   m_Layer: 3
-  m_Name: HealthBar v2
+  m_Name: HealthBarPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -140,8 +140,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7538083527645628011}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1, y: 0, z: 0}
-  m_LocalScale: {x: 200, y: 25, z: 1}
+  m_LocalPosition: {x: -0.8, y: 0, z: 0}
+  m_LocalScale: {x: 1.6, y: 0.2, z: 1}
   m_Children: []
   m_Father: {fileID: 7538083528770021286}
   m_RootOrder: 0
@@ -165,7 +165,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 7881ef5a1c9f25a479e93966e6cbceb3, type: 2}
+  - {fileID: 2100000, guid: 231ae5c9248b9684293e286d31649a36, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -186,7 +186,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: 21300000, guid: 479bfc66ad012ca4293d5f4743d630a7, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 95c9fd6a1be5f374c8e046d339a2712a, type: 3}
   m_Color: {r: 0, g: 1, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -221,7 +221,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7538083528770021285}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1, y: 0, z: 0}
+  m_LocalPosition: {x: 0.8, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 7538083527645628012}
@@ -254,7 +254,7 @@ Transform:
   m_GameObject: {fileID: 7538083528921273706}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 210, y: 35, z: 1}
+  m_LocalScale: {x: 1.68, y: 0.28, z: 1}
   m_Children: []
   m_Father: {fileID: 1808089922170281903}
   m_RootOrder: 0
@@ -278,7 +278,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 7881ef5a1c9f25a479e93966e6cbceb3, type: 2}
+  - {fileID: 2100000, guid: 231ae5c9248b9684293e286d31649a36, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -299,7 +299,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 479bfc66ad012ca4293d5f4743d630a7, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 95c9fd6a1be5f374c8e046d339a2712a, type: 3}
   m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
