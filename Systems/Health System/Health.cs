@@ -13,13 +13,18 @@ namespace SLE.Systems.Health
 
 #if UNDER_DEVELOPMENT
         [SerializeField]
-        private int _maxHealthPoints;
+        internal int _maxHealthPoints;
 
         [SerializeField]
-        private int _currentHealthPoints;
+        internal int _currentHealthPoints;
 
         [SerializeField]
-        private HealthBehaviour _onZeroHealth = HealthBehaviour.DisableGameObject;
+        internal HealthBehaviour onZeroHealth = HealthBehaviour.DisableGameObject;
+#else
+        internal int _maxHealthPoints;
+        internal int _currentHealthPoints;
+        internal HealthBehaviour onZeroHealth = HealthBehaviour.DisableGameObject;
+#endif
 
         public int maxHealth
         {
@@ -39,11 +44,5 @@ namespace SLE.Systems.Health
                 OnHealthChange(this);
             }
         }
-        public ref readonly HealthBehaviour onZeroHealth { get => ref _onZeroHealth; }
-#else
-        public int maxHealth                { get; internal set; }
-        public int currentHealth            { get; internal set; }
-        public HealthBehaviour onZeroHealth { get; internal set; }
-#endif
     }
 }

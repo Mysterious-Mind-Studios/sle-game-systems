@@ -14,7 +14,7 @@ namespace SLE.Systems.Targeting
         [SerializeField]
         internal Transform aimPoint;
 #else
-        public Transform aimPoint { get; internal set; }
+        internal Transform aimPoint;
 #endif
     }
 }

@@ -29,21 +29,11 @@ namespace SLE.Systems.Targeting
         [SerializeField]
         internal TargetDetectorData detectorInfo;
 #else
-        public Targetable         target        { get; internal set; } 
-        public Transform          fovOrigin     { get; internal set; }
-        public TargetDetectorData detectorInsfo { get; internal set; }
+        internal Targetable         target;
+        internal Transform          fovOrigin;
+        internal TargetDetectorData detectorInfo;
 #endif
 
-        public void EnableDetection()
-        {
-            enabled = true;
-            onComponentEnable(this);
-        }
-        public void DisableDetection()
-        {
-            enabled = false;
-            onComponentDisable(this);
-        }
         public void SetTarget(in Targetable target)
         {
             if (target)
@@ -56,9 +46,9 @@ namespace SLE.Systems.Targeting
         {
             target = null;
         }
-        public ref readonly Targetable GetCurrentTarget() => ref target;
+        public Targetable GetCurrentTarget() => target;
 
-#if UNITY_EDITOR
+#if UNDER_DEVELOPMENT
 
         [Space]
         [Header("Editor Settings")]

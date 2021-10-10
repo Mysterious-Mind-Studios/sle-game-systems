@@ -22,9 +22,9 @@ namespace SLE.Systems.Health
                  "Unchecking this option makes the bar be statically rotated in the same position.")]
         internal bool billboard = true;
 #else
-        public Transform barAnchor { get; internal set; }
-        public Vector2   barScale  { get; internal set; }
-        public bool      billboard { get; internal set; }
+        internal Transform barAnchor;
+        internal Vector2   barScale = Vector2.one;
+        internal bool      billboard = true;
 #endif
 
         /// <summary>

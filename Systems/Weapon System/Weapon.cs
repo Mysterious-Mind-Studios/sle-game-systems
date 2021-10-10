@@ -34,11 +34,11 @@ namespace SLE.Systems.Weapon
         [SerializeField]
         internal LayerMask targetLayer;
 #else
-        public WeaponInfo weaponInfo  { get; internal set; }
-        public AmmoInfo   ammoInfo    { get; internal set; }
-        public Transform  firePoint   { get; internal set; }
-        public Ammo       ammo        { get; internal set; }
-        public LayerMask  targetLayer { get; internal set; }
+        internal WeaponInfo weaponInfo;
+        internal AmmoInfo   ammoInfo;
+        internal Ammo       ammo;
+        internal Transform  firePoint;
+        internal LayerMask  targetLayer;
 #endif
 
         protected abstract void OnFire();
@@ -51,7 +51,6 @@ namespace SLE.Systems.Weapon
         {
             OnWeaponReload(this);
         }
-
         public override string ToString()
         {
             return weaponInfo.name;
