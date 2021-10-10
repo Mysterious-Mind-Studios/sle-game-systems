@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Highlight Selection
+  m_Shader: {fileID: -6465566751694194690, guid: 477c0b116c7281c43bcf0d30a3b27eed, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 1
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - Texture2D_4F69794:
+        m_Texture: {fileID: 2800000, guid: 55936c6560b9c224fbd981de539c2894, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - Texture2D_B1D619C0:
+        m_Texture: {fileID: 2800000, guid: 0abf133454af9534d8f4a23b91ec5785, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: 12dcf8d7c695ef54f8ca8eca1f5a68d3, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ColorBaseMap:
+        m_Texture: {fileID: 2800000, guid: ce00d67f9368944fa8ef4de6ccc77bfa, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats: []
+    m_Colors:
+    - Color_8E54CC9E: {r: 1.0592737, g: 1.0592737, b: 1.0592737, a: 1}
+    - _BaseColor: {r: 2, g: 2, b: 2, a: 1}
+    - _COLORHDR: {r: 1, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []
