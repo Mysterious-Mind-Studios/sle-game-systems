@@ -21,11 +21,7 @@ namespace SLE.Systems.Health.Jobs
         {
             ref HealthData healthData = ref healthDataPtr[index];
 
-            Vector3 barFillTransformScale = barFillTransform.localScale;
-
-            barFillTransformScale.x = healthData.normalized;
-
-            barFillTransform.localScale = barFillTransformScale;
+            barFillTransform.localScale = new Vector3(healthData.normalized, barFillTransform.localScale.y, barFillTransform.localScale.z);
         }
     }
 }

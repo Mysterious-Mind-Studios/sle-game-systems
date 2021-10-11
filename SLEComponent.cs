@@ -9,13 +9,10 @@ namespace SLE
 
     public class SLEComponent<T> : MonoBehaviour where T : MonoBehaviour
     {
-        protected static OnObjectChange<T> onComponentEnable;
-        protected static OnObjectChange<T> onComponentDisable;
-
         internal static event OnObjectCreate<T>  OnComponentCreate;
         internal static event OnObjectDestroy<T> OnComponentDestroy;
-        internal static event OnObjectChange<T>  OnComponentEnable  { add => onComponentEnable += value; remove => onComponentEnable -= value; }
-        internal static event OnObjectChange<T>  OnComponentDisable { add => onComponentDisable += value; remove => onComponentDisable -= value; }
+        internal static event OnObjectChange<T>  OnComponentEnable;
+        internal static event OnObjectChange<T>  OnComponentDisable;
 
         internal int _id = -1;
         public int id { get => _id; }
@@ -30,13 +27,13 @@ namespace SLE
         {
             T _this = GetComponent<T>();
 
-            onComponentEnable?.Invoke(_this);
+            OnComponentEnable?.Invoke(_this);
         }
         protected void OnDisable()
         {
             T _this = GetComponent<T>();
 
-            onComponentDisable?.Invoke(_this);
+            OnComponentDisable?.Invoke(_this);
         }
         protected void OnDestroy()
         {

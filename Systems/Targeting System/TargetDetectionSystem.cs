@@ -23,8 +23,8 @@ namespace SLE.Systems.Targeting
 
             _instance = this;
 
-            activeDetectors   = new HashSet<TargetDetector>(GameObject.FindObjectsOfType<TargetDetector>());
-            activeTargetables = new HashSet<Targetable>(GameObject.FindObjectsOfType<Targetable>());
+            activeDetectors   = new HashSet<TargetDetector>(GameObject.FindObjectsOfType<TargetDetector>(false));
+            activeTargetables = new HashSet<Targetable>(GameObject.FindObjectsOfType<Targetable>(false));
 
             int i;
             int detLength  = activeDetectors.Count;
@@ -252,18 +252,6 @@ namespace SLE.Systems.Targeting
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                TargetDetector.OnComponentCreate -= OnDetectorCreatedUpdateCache;
-                TargetDetector.OnComponentDestroy -= OnDetectorDestroyedUpdateCache;
-                TargetDetector.OnComponentEnable -= OnDetectorEnableUpdateState;
-                TargetDetector.OnComponentDisable -= OnDetectorDisableUpdateState;
-                Targetable.OnComponentCreate -= OnTargetableCreatedUpdateCache;
-                Targetable.OnComponentDestroy -= OnTargetableDestroyedUpdateCache;
-                Targetable.OnComponentEnable -= OnTargetableEnableUpdateState;
-                Targetable.OnComponentDisable -= OnTargetableDisableUpdateState;
-            }
-
             _instance = null;
             activeDetectors = null;
             activeTargetables = null;
@@ -271,6 +259,15 @@ namespace SLE.Systems.Targeting
             _cacheTargetables = null;
             _cacheDetectorData = null;
             _cacheTargetableData = null;
+
+            TargetDetector.OnComponentCreate -= OnDetectorCreatedUpdateCache;
+            TargetDetector.OnComponentDestroy -= OnDetectorDestroyedUpdateCache;
+            TargetDetector.OnComponentEnable -= OnDetectorEnableUpdateState;
+            TargetDetector.OnComponentDisable -= OnDetectorDisableUpdateState;
+            Targetable.OnComponentCreate -= OnTargetableCreatedUpdateCache;
+            Targetable.OnComponentDestroy -= OnTargetableDestroyedUpdateCache;
+            Targetable.OnComponentEnable -= OnTargetableEnableUpdateState;
+            Targetable.OnComponentDisable -= OnTargetableDisableUpdateState;
 
             base.Dispose(disposing);
         }

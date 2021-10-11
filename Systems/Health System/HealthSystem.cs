@@ -1,4 +1,5 @@
 ﻿
+
 using System;
 using System.Collections.Generic;
 
@@ -44,7 +45,7 @@ namespace SLE.Systems.Health
             set
             {
                 healthBarsEnabled = value;
-                ToggleHealthBars(healthBarsEnabled);
+                ToggleHealthBars?.Invoke(healthBarsEnabled);
             }
         }
 
@@ -58,11 +59,20 @@ namespace SLE.Systems.Health
             _hpBarPrefab = Resources.Load<GameObject>(HP_BAR_PREFAB_NAME);
             _mainCameraTransform = Camera.main.transform;
 
-            activeHealths = new HashSet<Health>(GameObject.FindObjectsOfType<Health>());
-            activeHealthBars = new HashSet<HealthBar>(GameObject.FindObjectsOfType<HealthBar>());
+            activeHealths = new HashSet<Health>(GameObject.FindObjectsOfType<Health>(false));
+            activeHealthBars = new HashSet<HealthBar>(GameObject.FindObjectsOfType<HealthBar>(false));
 
             int hLength = activeHealths.Count;
             int hbLength = activeHealthBars.Count;
+
+            Health.OnHealthChange     += OnHealthChangeUpdateState;
+            Health.OnComponentCreate  += OnHealthCreatedUpdateCache;
+            Health.OnComponentDestroy += OnHealthDestroyedUpdateCache;
+
+            HealthBar.OnComponentCreate  += OnHealthBarCreatedUpdateCache;
+            HealthBar.OnComponentDestroy += OnHealthBarDestroyedUpdateCache;
+            HealthBar.OnComponentEnable  += OnHealthBarEnable;
+            HealthBar.OnComponentDisable += OnHealthBarDisable;
 
             _cacheHealths = new Health[hLength];
             _cacheHealthData = new HealthData[hLength];
@@ -83,45 +93,48 @@ namespace SLE.Systems.Health
             {
                 Health health = _cacheHealths[i];
 
-                if (health && health.enabled)
-                {
-                    health._id = healthIndex;
-                    _cacheHealthData[healthIndex] = new HealthData(health);
+                health._id = healthIndex;
+                _cacheHealthData[healthIndex] = new HealthData(health);
 
-                    HealthBar healthBar = health.GetComponent<HealthBar>();
-                    if (healthBar && healthBar.enabled)
+                HealthBar healthBar = health.GetComponent<HealthBar>();
+
+                // Health bars MUST have a Health component to be used. 
+                // But the opposite does not apply.
+                if (healthBar)
+                {
+                    if (healthBar.enabled)
                     {
                         healthBar._id = healthBarIndex;
                         healthBar.healthComponentID = healthIndex;
+
+                        _cacheHealthBars[healthBarIndex] = healthBar;
+                        _cacheHealthBarData[healthBarIndex] = new HealthBarData(in healthBar);
+
                         healthBar.generatedHealthBar = GameObject.Instantiate(_hpBarPrefab, healthBar.barAnchor.position, Quaternion.identity);
-
-                        Transform barFillTransform = healthBar.generatedHealthBar.transform.Find(HP_BAR_FILL_GO_NAME);
-
 #if UNITY_EDITOR
                         healthBar.generatedHealthBar.name = $"[Auto-Generated] {healthBar.gameObject.name} Health Bar";
 #endif
                         healthBar.generatedHealthBar.transform.localScale = healthBar.barScale;
+                        healthBar.generatedHealthBar.transform.forward = -_mainCameraTransform.forward;
 
-                        if (healthBar.billboard)
-                            healthBar.generatedHealthBar.transform.forward = -_mainCameraTransform.forward;
-
-                        _cacheHealthBars[healthBarIndex] = healthBar;
-                        _cacheHealthBarData[healthBarIndex] = new HealthBarData(in healthBar);
+                        Transform barFillTransform = healthBar.generatedHealthBar.transform.Find(HP_BAR_FILL_GO_NAME);
 
                         healthBarAnchorList.Add(healthBar.barAnchor);
                         healthBarTransformList.Add(healthBar.generatedHealthBar.transform);
                         healthBarFillTransformList.Add(barFillTransform);
 
-                        ToggleHealthBars += healthBar.generatedHealthBar.SetActive;
-
                         healthBarIndex++;
                     }
-
-                    healthIndex++;
+                    else
+                    {
+                        activeHealthBars.Remove(healthBar);
+                    }
                 }
+
+                healthIndex++;
             }
 
-            Health.OnHealthChange += OnHealthChangeSignalUpdate;
+            locked = hLength == 0;
 
             Resources.UnloadUnusedAssets();
         }
@@ -131,12 +144,12 @@ namespace SLE.Systems.Health
             Dispose(false);
         }
 
-        HashSet<Health> activeHealths;
+        HashSet<Health>    activeHealths;
         HashSet<HealthBar> activeHealthBars;
 
-        bool locked = false;
+        bool locked                  = false;
         bool transformChangesUpdated = false;
-        bool healthChangesUpdated = true;
+        bool healthChangesUpdated    = true;
 
         // --- Cache data --- //
 
@@ -152,107 +165,17 @@ namespace SLE.Systems.Health
 
         // --- Cache data --- //
 
-        private void OnHealthCreatedUpdateCache(Health health)
+        private void OnHealthChangeUpdateState(Health health)
         {
-            locked = true;
+            if (!health) return;
 
-            if (activeHealths.Add(health))
-            {
-                int length = activeHealths.Count;
-
-                Array.Resize(ref _cacheHealths, length);
-                Array.Resize(ref _cacheHealthData, length);
-
-                activeHealths.CopyTo(_cacheHealths);
-
-                int i;
-                for (i = 0; i < length; i++)
-                {
-                    Health _health = _cacheHealths[i];
-                    
-                    if(_health._id == health._id)
-                    {
-                        _health._id = i;
-
-                        HealthBar healthBar = _health.GetComponent<HealthBar>();
-
-                        if(healthBar && 
-                           healthBar.enabled)
-                        {
-                            if (healthBar._id == health._id)
-                            {
-                                healthBar._id = i;
-
-                            }
-                        }
-                    }
-                }
-            }
-
-            locked = false;
-        }
-
-        /*private void OnWeaponDestroyedUpdateCache(Weapon weapon)
-        {
-            locked = true;
-
-            if (activeWeapons.Remove(weapon))
-            {
-                int length = activeWeapons.Count;
-
-                Array.Resize(ref _cacheWeapons, length);
-                Array.Resize(ref _cacheWeaponData, length);
-                Array.Resize(ref _cacheWeaponAmmo, length);
-
-                activeWeapons.CopyTo(_cacheWeapons);
-
-                int i;
-                for (i = 0; i < length; i++)
-                {
-                    Weapon _weapon = _cacheWeapons[i];
-
-                    _weapon._id = i;
-
-                    _cacheWeaponData[i] = new WeaponData(_weapon);
-                    _cacheWeaponAmmo[i] = new Ammo(in _weapon.ammoInfo);
-                    _cacheWeaponAmmo[i].AddAmount(_weapon.ammo.amount, Source.Ammo);
-                    _cacheWeaponAmmo[i].AddAmount(_weapon.ammo.magazineAmmo, Source.Magazine);
-                }
-            }
-
-            locked = false;
-        }
-        private void OnWeaponEnableUpdateState(Weapon weapon)
-        {
-            locked = true;
-
-            int index = weapon.id;
-            ref WeaponData data = ref _cacheWeaponData[index];
-
-            data.state = WeaponState.Ready;
-
-            locked = false;
-        }
-        private void OnWeaponDisableUpdateState(Weapon weapon)
-        {
-            locked = true;
-
-            int index = weapon.id;
-            ref WeaponData data = ref _cacheWeaponData[index];
-
-            data.state = WeaponState.Inactive;
-
-            locked = false;
-        }*/
-        private void OnHealthChangeSignalUpdate(Health health)
-        {
             ref HealthData healthData = ref _cacheHealthData[health._id];
 
-            if(health._currentHealthPoints == 0)
+            if (health._currentHealthPoints == 0)
             {
                 int index = health._id;
- 
-                switch(health.onZeroHealth)
+
+                switch (health.onZeroHealth)
                 {
                     case HealthBehaviour.Disable:
                         {
@@ -299,6 +222,171 @@ namespace SLE.Systems.Health
             healthChangesUpdated = false;
         }
 
+        private void OnHealthCreatedUpdateCache(Health health)
+        {
+            locked = true;
+
+            if (activeHealths.Add(health))
+            {
+                int length = activeHealths.Count;
+
+                Array.Resize(ref _cacheHealths, length);
+                Array.Resize(ref _cacheHealthData, length);
+
+                activeHealths.CopyTo(_cacheHealths);
+
+                int i;
+                for (i = 0; i < length; i++)
+                {
+                    Health _health = _cacheHealths[i];
+
+                    _health._id = i;
+
+                    _cacheHealthData[i] = new HealthData(_health);
+                }
+            }
+
+            locked = false;
+        }
+        private void OnHealthDestroyedUpdateCache(Health health)
+        {
+            locked = true;
+
+            int length = 0;
+            if (activeHealths.Remove(health))
+            {
+                length = activeHealths.Count;
+
+                Array.Resize(ref _cacheHealths, length);
+                Array.Resize(ref _cacheHealthData, length);
+
+                activeHealths.CopyTo(_cacheHealths);
+
+                int i;
+                for (i = 0; i < length; i++)
+                {
+                    Health _health = _cacheHealths[i];
+
+                    _health._id = i;
+
+                    _cacheHealthData[i] = new HealthData(_health);
+                }
+            }
+
+            locked = length == 0;
+        }
+        private void OnHealthBarCreatedUpdateCache(HealthBar healthBar)
+        {
+            locked = true;
+
+            if (activeHealthBars.Add(healthBar))
+            {
+                int length = activeHealthBars.Count;
+
+                Array.Resize(ref _cacheHealthBars, length);
+                Array.Resize(ref _cacheHealthBarData, length);
+                healthBarAnchorList.capacity        = length; // Hope it resizes the internal buffer??
+                healthBarTransformList.capacity     = length; // Hope it resizes the internal buffer??
+                healthBarFillTransformList.capacity = length; // Hope it resizes the internal buffer??
+
+                activeHealthBars.CopyTo(_cacheHealthBars);
+
+                int i;
+                for (i = 0; i < length; i++)
+                {
+                    HealthBar _healthBar = _cacheHealthBars[i];
+
+                    _healthBar._id = i;
+                    _healthBar.healthComponentID = _healthBar.GetComponent<Health>()._id;
+
+                    _cacheHealthBarData[i] = new HealthBarData(_healthBar);
+
+                    if (_healthBar.generatedHealthBar)
+                        continue;
+
+                    _healthBar.generatedHealthBar = GameObject.Instantiate(_hpBarPrefab, _healthBar.barAnchor.position, Quaternion.identity);
+#if UNITY_EDITOR
+                    _healthBar.generatedHealthBar.name = $"[Auto-Generated] {_healthBar.gameObject.name} Health Bar";
+#endif
+                    _healthBar.generatedHealthBar.transform.localScale = _healthBar.barScale;
+                    _healthBar.generatedHealthBar.transform.forward = -_mainCameraTransform.forward;
+                    _healthBar.generatedHealthBar.SetActive(false);
+
+                    Transform barFillTransform = _healthBar.generatedHealthBar.transform.Find(HP_BAR_FILL_GO_NAME);
+
+                    healthBarAnchorList.Add(_healthBar.barAnchor);
+                    healthBarTransformList.Add(_healthBar.generatedHealthBar.transform);
+                    healthBarFillTransformList.Add(barFillTransform);
+                }
+
+                locked = false;
+            }
+        }
+        private void OnHealthBarDestroyedUpdateCache(HealthBar healthBar)
+        {
+            locked = true;
+
+            if (activeHealthBars.Remove(healthBar))
+            {
+                int index = healthBar._id;
+
+                healthBarAnchorList.RemoveAtSwapBack(index);
+                healthBarTransformList.RemoveAtSwapBack(index);
+                healthBarFillTransformList.RemoveAtSwapBack(index);
+                GameObject.Destroy(healthBar.generatedHealthBar);
+
+                int length = activeHealthBars.Count;
+
+                Array.Resize(ref _cacheHealthBars, length);
+                Array.Resize(ref _cacheHealthBarData, length);
+                healthBarAnchorList.capacity        = length; // Hope it resizes the internal buffer??
+                healthBarTransformList.capacity     = length; // Hope it resizes the internal buffer??
+                healthBarFillTransformList.capacity = length; // Hope it resizes the internal buffer??
+
+                activeHealthBars.CopyTo(_cacheHealthBars);
+
+                int i;
+                for (i = 0; i < length; i++)
+                {
+                    HealthBar _healthBar = _cacheHealthBars[i];
+
+                    _healthBar._id = i;
+                    _healthBar.healthComponentID = _healthBar.GetComponent<Health>()._id;
+
+                    _cacheHealthBarData[i] = new HealthBarData(_healthBar);
+
+                    if (_healthBar.generatedHealthBar)
+                        continue;
+
+                    _healthBar.generatedHealthBar = GameObject.Instantiate(_hpBarPrefab, _healthBar.barAnchor.position, Quaternion.identity);
+#if UNITY_EDITOR
+                    _healthBar.generatedHealthBar.name = $"[Auto-Generated] {_healthBar.gameObject.name} Health Bar";
+#endif
+                    _healthBar.generatedHealthBar.transform.localScale = _healthBar.barScale;
+                    _healthBar.generatedHealthBar.transform.forward = -_mainCameraTransform.forward;
+                    _healthBar.generatedHealthBar.SetActive(false);
+
+                    Transform barFillTransform = _healthBar.generatedHealthBar.transform.Find(HP_BAR_FILL_GO_NAME);
+
+                    healthBarAnchorList.Add(_healthBar.barAnchor);
+                    healthBarTransformList.Add(_healthBar.generatedHealthBar.transform);
+                    healthBarFillTransformList.Add(barFillTransform);
+                }
+
+                locked = false;
+            }
+        }
+        private void OnHealthBarEnable(HealthBar healthBar)
+        {
+            healthBar.generatedHealthBar.SetActive((healthBar.enabled && displayHealthBars));
+            ToggleHealthBars += healthBar.generatedHealthBar.SetActive;
+        }
+        private void OnHealthBarDisable(HealthBar healthBar)
+        {
+            healthBar.generatedHealthBar.SetActive(false);
+            ToggleHealthBars -= healthBar.generatedHealthBar.SetActive;
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -326,7 +414,14 @@ namespace SLE.Systems.Health
             _cacheHealthBars = null;
             _cacheHealthBarData = null;
 
-            Health.OnHealthChange -= OnHealthChangeSignalUpdate;
+            Health.OnHealthChange     -= OnHealthChangeUpdateState;
+            Health.OnComponentCreate  -= OnHealthCreatedUpdateCache;
+            Health.OnComponentDestroy -= OnHealthDestroyedUpdateCache;
+
+            HealthBar.OnComponentCreate  -= OnHealthBarCreatedUpdateCache;
+            HealthBar.OnComponentDestroy -= OnHealthBarDestroyedUpdateCache;
+            HealthBar.OnComponentEnable  -= OnHealthBarEnable;
+            HealthBar.OnComponentDisable -= OnHealthBarDisable;
 
             base.Dispose(disposing);
         }
@@ -337,6 +432,7 @@ namespace SLE.Systems.Health
             if (locked) return handle;
             
             int length = _cacheHealthBars.Length;
+            int batchCount = GetBatchCount(length);
             
             //if (!detectedChanges) return handle;    // TODO - Turn functional when becomes possible to detect changes on transforms.
             fixed (HealthBarData* healthBarDataPtr = &_cacheHealthBarData[0])
@@ -346,7 +442,7 @@ namespace SLE.Systems.Health
                     healthBarDataPtr = healthBarDataPtr
                 };
 
-                handle = updateHealthBarDataJob.Schedule(healthBarAnchorList, handle);
+                handle = updateHealthBarDataJob.ScheduleReadOnly(healthBarAnchorList, batchCount, handle);
             
                 UpdateHealthBarTransformJob updateHealthBarsTransformJob = new UpdateHealthBarTransformJob
                 {

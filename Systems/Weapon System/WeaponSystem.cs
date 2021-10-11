@@ -25,7 +25,7 @@ namespace SLE.Systems.Weapon
 
             _instance = this;
 
-            activeWeapons = new HashSet<Weapon>(GameObject.FindObjectsOfType<Weapon>());
+            activeWeapons = new HashSet<Weapon>(GameObject.FindObjectsOfType<Weapon>(false));
             locked = false;
 
             int length = activeWeapons.Count;
@@ -192,21 +192,18 @@ namespace SLE.Systems.Weapon
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                Weapon.OnComponentCreate  -= OnWeaponCreatedUpdateCache;
-                Weapon.OnComponentDestroy -= OnWeaponDestroyedUpdateCache;
-                Weapon.OnWeaponFire       -= OnWeaponFiredUpdateState;
-                Weapon.OnWeaponReload     -= OnWeaponReloadedUpdateState;
-                Weapon.OnComponentEnable  -= OnWeaponEnableUpdateState;
-                Weapon.OnComponentDisable -= OnWeaponDisableUpdateState;
-            }
-
             _instance = null;
             activeWeapons = null;
             _cacheWeapons = null;
             _cacheWeaponData = null;
             _cacheWeaponAmmo = null;
+
+            Weapon.OnComponentCreate -= OnWeaponCreatedUpdateCache;
+            Weapon.OnComponentDestroy -= OnWeaponDestroyedUpdateCache;
+            Weapon.OnWeaponFire -= OnWeaponFiredUpdateState;
+            Weapon.OnWeaponReload -= OnWeaponReloadedUpdateState;
+            Weapon.OnComponentEnable -= OnWeaponEnableUpdateState;
+            Weapon.OnComponentDisable -= OnWeaponDisableUpdateState;
 
             base.Dispose(disposing);
         }
