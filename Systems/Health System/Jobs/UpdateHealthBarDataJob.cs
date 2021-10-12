@@ -16,10 +16,11 @@ namespace SLE.Systems.Health.Jobs
 
         public void Execute(int index, TransformAccess barAnchorTransform)
         {
-            ref HealthBarData healthBarData = ref healthBarDataPtr[index];
+            if (!barAnchorTransform.isValid) return;
+
+            HealthBarData healthBarData = healthBarDataPtr[index];
 
             healthBarData.targetPosition = barAnchorTransform.position;
         }
     }
 }
-

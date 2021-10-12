@@ -4,7 +4,6 @@ using UnityEngine.Jobs;
 
 using Unity.Burst;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 
 
 namespace SLE.Systems.Health.Jobs
@@ -14,14 +13,15 @@ namespace SLE.Systems.Health.Jobs
     [BurstCompile]
     unsafe struct UpdateHealthBarFillTransformJob : IJobParallelForTransform
     {
-        [ReadOnly, NativeDisableUnsafePtrRestriction]
-        public HealthData* healthDataPtr;
+        [ReadOnly]
+        [DeallocateOnJobCompletion]
+        public NativeArray<HealthData> healthDataArray;
 
         public void Execute(int index, TransformAccess barFillTransform)
         {
-            ref HealthData healthData = ref healthDataPtr[index];
+            if (!barFillTransform.isValid) return;
 
-            barFillTransform.localScale = new Vector3(healthData.normalized, barFillTransform.localScale.y, barFillTransform.localScale.z);
+            barFillTransform.localScale = new Vector3(healthDataArray[index].normalized, barFillTransform.localScale.y, barFillTransform.localScale.z);
         }
     }
 }

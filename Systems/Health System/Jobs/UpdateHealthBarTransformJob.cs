@@ -21,6 +21,8 @@ namespace SLE.Systems.Health.Jobs
 
         public void Execute(int index, TransformAccess barTransform)
         {
+            if (!barTransform.isValid) return;
+
             HealthBarData healthBarData = healthBarDataPtr[index];
 
             if (healthBarData.updateRotation)
