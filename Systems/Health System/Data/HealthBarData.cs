@@ -9,7 +9,7 @@ namespace SLE.Systems.Health.Data
     {
         public HealthBarData(in HealthBar healthBar)
         {
-            targetPosition = healthBar.barAnchor.position;
+            targetPosition = healthBar.attachedPrefab.position;
             updatePosition = !healthBar.gameObject.isStatic;
             updateRotation = healthBar.billboard;
         }

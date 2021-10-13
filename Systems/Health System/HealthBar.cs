@@ -10,12 +10,7 @@ namespace SLE.Systems.Health
         [SerializeField]
         [Tooltip("The transform object attached to this game object that the generated health bar will be positioned at. \n\n" +
                  "Note: Highly recommended to use an empty game object. The health bars are auto generated at runtime.")]
-        internal Transform barAnchor;
-
-        [SerializeField]
-        [Tooltip("A multiplier for the bar size. The actual bar size will be multiplied by these values in each axis. \n" +
-                 "A value of one in each axis will make the bar keep it's original size.")]
-        internal Vector2 barScale = Vector2.one;
+        internal Transform attachedPrefab;
 
         [SerializeField]
         [Tooltip("Indicates whether the bar should keep looking at the main camera. \n" +
@@ -31,10 +26,6 @@ namespace SLE.Systems.Health
         /// [Internal usage only]
         /// </summary>
         internal int healthComponentID;
-        /// <summary>
-        /// [Internal usage only]
-        /// </summary>
-        internal GameObject generatedHealthBar;
     }
 }
 

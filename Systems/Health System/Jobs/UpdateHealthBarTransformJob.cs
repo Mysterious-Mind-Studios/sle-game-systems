@@ -27,9 +27,6 @@ namespace SLE.Systems.Health.Jobs
 
             if (healthBarData.updateRotation)
                 barTransform.rotation = quaternion.LookRotation(-mainCameraForward, math.up());
-
-            if (healthBarData.updatePosition)
-                barTransform.position = healthBarData.targetPosition;
         }
     }
 }
