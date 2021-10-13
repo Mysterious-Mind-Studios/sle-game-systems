@@ -16,5 +16,7 @@ namespace SLE.Systems.Targeting
 #else
         internal Transform aimPoint;
 #endif
+
+        public Vector3 position { get => aimPoint.position; }
     }
 }

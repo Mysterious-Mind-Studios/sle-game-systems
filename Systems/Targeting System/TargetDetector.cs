@@ -17,36 +17,39 @@ namespace SLE.Systems.Targeting
 #if UNDER_DEVELOPMENT
         [Space]
         [SerializeField]
-        internal Targetable target;
+        internal Targetable _target;
 
         [Space]
         [Tooltip("Used to define a custom origin point for the field of detection view . " +
                  "\n If it's not initialized then the object's position is used instead as a reference.")]
         [SerializeField]
-        internal Transform fovOrigin;
+        internal Transform _fovOrigin;
 
         [Space]
         [SerializeField]
-        internal TargetDetectorData detectorInfo;
-#else
-        internal Targetable         target;
-        internal Transform          fovOrigin;
-        internal TargetDetectorData detectorInfo;
-#endif
+        internal TargetDetectorData _detectorInfo;
 
-        public void SetTarget(in Targetable target)
+        [Space]
+        [SerializeField]
+        internal LayerMask _targetLayer;
+#else
+        internal Targetable         _target;
+        internal Transform          _fovOrigin;
+        internal TargetDetectorData _detectorInfo;
+        internal LayerMask          _targetLayer;
+#endif
+        public Targetable target
         {
-            if (target)
+            get => _target;
+            set
             {
-                this.target = target;
-                OnFixedTargetSet(this);
+                if (value)
+                {
+                    _target = value;
+                    OnFixedTargetSet(this);
+                }
             }
         }
-        public void ClearTarget()
-        {
-            target = null;
-        }
-        public Targetable GetCurrentTarget() => target;
 
 #if UNDER_DEVELOPMENT
 
@@ -59,18 +62,18 @@ namespace SLE.Systems.Targeting
         private void OnDrawGizmos()
         {
             if (!drawFOV)      return;
-            if (!detectorInfo) return;
+            if (!_detectorInfo) return;
 
             Gizmos.color  = Color.white;
             Handles.color = Color.red;
 
-            var _fovPoint = fovOrigin ? fovOrigin.position : transform.position;
+            var _fovPoint = _fovOrigin ? _fovOrigin.position : transform.position;
 
-            Gizmos.DrawWireSphere(_fovPoint, detectorInfo.fovRadius);
+            Gizmos.DrawWireSphere(_fovPoint, _detectorInfo.fovRadius);
 
-            if (!target || !target.aimPoint) return;
+            if (!_target || !_target.aimPoint) return;
 
-            Handles.DrawLine(_fovPoint, target.aimPoint.position);
+            Handles.DrawLine(_fovPoint, _target.aimPoint.position);
         }
 
 #endif

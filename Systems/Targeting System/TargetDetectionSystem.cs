@@ -23,8 +23,8 @@ namespace SLE.Systems.Targeting
 
             _instance = this;
 
-            activeDetectors   = new HashSet<TargetDetector>(GameObject.FindObjectsOfType<TargetDetector>(false));
-            activeTargetables = new HashSet<Targetable>(GameObject.FindObjectsOfType<Targetable>(false));
+            activeDetectors   = new HashSet<TargetDetector>(GameObject.FindObjectsOfType<TargetDetector>());
+            activeTargetables = new HashSet<Targetable>(GameObject.FindObjectsOfType<Targetable>());
 
             int i;
             int detLength  = activeDetectors.Count;
@@ -308,14 +308,14 @@ namespace SLE.Systems.Targeting
                             switch (detectorDataPtr[i].state)
                             {
                                 case DetectorState.Active:
-                                    detectorDataPtr[i].position = _cacheDetectors[i].fovOrigin.position;
+                                    detectorDataPtr[i].position = _cacheDetectors[i]._fovOrigin.position;
                                     break;
 
                                 case DetectorState.HasFixedTarget:
                                     {
                                         if (detectorDataPtr[i].state == DetectorState.HasFixedTarget)
                                         {
-                                            if (_cacheDetectors[i].target)
+                                            if (_cacheDetectors[i]._target)
                                                 continue;
 
                                             detectorDataPtr[i].state = DetectorState.Active;
@@ -337,11 +337,12 @@ namespace SLE.Systems.Targeting
                         time = time
                     };
 
-                    JobHandle jobHandle = findTargetJob.Schedule(dLength, batchCount, handle);
+                    handle = findTargetJob.Schedule(dLength, batchCount, handle);
 
-                    return jobHandle;
                 }
             }
+
+            return handle;
         }
         public override void OnUpdate(float time, float deltaTime)
         {
@@ -360,11 +361,11 @@ namespace SLE.Systems.Targeting
 
                     if (index >= 0 && index < tLength)
                     {
-                        _cacheDetectors[i].target = _cacheTargetables[index];
+                        _cacheDetectors[i]._target = _cacheTargetables[index];
                         continue;
                     }
 
-                    _cacheDetectors[i].target = null;
+                    _cacheDetectors[i]._target = null;
                 }
             }
         }

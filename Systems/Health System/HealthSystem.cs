@@ -59,7 +59,7 @@ namespace SLE.Systems.Health
             _hpBarPrefab = Resources.Load<GameObject>(HP_BAR_PREFAB_NAME);
             _mainCameraTransform = Camera.main.transform;
 
-            activeHealths = new HashSet<Health>(GameObject.FindObjectsOfType<Health>(false));
+            activeHealths = new HashSet<Health>(GameObject.FindObjectsOfType<Health>());
             activeHealthBars = new HashSet<HealthBar>();
 
             Health.OnHealthChange        += OnHealthChangeUpdateState;

@@ -53,6 +53,9 @@ namespace SLE.Systems.Targeting.Jobs
                                 if (target.position.Equals(detector.position))
                                     continue;
 
+                                if (((1 << target.layer) & detector.targetLayer) == 0)
+                                    continue;
+
                                 float sqrdDistanceToTarget = math.distancesq(detectorPos, target.position);
 
                                 if (sqrdDistanceToTarget == 1 ||
