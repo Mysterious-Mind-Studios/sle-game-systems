@@ -37,11 +37,13 @@ namespace SLE.Systems.Weapon.Jobs
                                 weapon.hasFired = true;
 
                                 ammo.RemoveAmount(1, Source.Ammo);
+
+                                weapon.state = WeaponState.Ready;
+                                break;
                             }
                         }
-                        else
-                            weapon.hasFired = false;
-
+                        
+                        weapon.hasFired = false;
                         weapon.state = WeaponState.Ready;
                     }
                     break;

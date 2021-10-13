@@ -36,6 +36,8 @@ namespace SLE.Systems.Weapon
         internal Transform  firePoint;
 #endif
 
+        protected ref readonly Transform FirePoint => ref firePoint;
+
         protected abstract void OnFire();
 
         public void Fire()
