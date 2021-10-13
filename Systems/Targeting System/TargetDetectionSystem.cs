@@ -48,9 +48,10 @@ namespace SLE.Systems.Targeting
             activeDetectors.CopyTo(_cacheDetectors);
             activeTargetables.CopyTo(_cacheTargetables);
 
+            int n = detLength > tgtbLength ? detLength : tgtbLength;
             int d = 0;
             int t = 0;
-            for (i = 0; i < detLength; i++)
+            for (i = 0; i < n; i++)
             {
                 if(d++ < detLength)
                 {
@@ -105,10 +106,10 @@ namespace SLE.Systems.Targeting
                 activeDetectors.CopyTo(_cacheDetectors);
 
                 int i;
-                for (i = 0; i < length - 1; i++)
+                for (i = 0; i < length; i++)
                 {
                     _cacheDetectors[i]._id = i;
-                    _cacheDetectorData[i]  = new DetectorData(_cacheDetectors[i]);
+                    _cacheDetectorData[i] = new DetectorData(_cacheDetectors[i]);
                 }
             }
 
@@ -128,7 +129,7 @@ namespace SLE.Systems.Targeting
                 activeDetectors.CopyTo(_cacheDetectors);
 
                 int i;
-                for (i = 0; i < length - 1; i++)
+                for (i = 0; i < length; i++)
                 {
                     _cacheDetectors[i]._id = i;
                     _cacheDetectorData[i]  = new DetectorData(_cacheDetectors[i]);
@@ -141,7 +142,7 @@ namespace SLE.Systems.Targeting
         {
             locked = true;
 
-            int index = detector.id;
+            int index = detector._id;
             ref DetectorData data = ref _cacheDetectorData[index];
 
             data.state = DetectorState.Active;
@@ -152,7 +153,8 @@ namespace SLE.Systems.Targeting
         {
             locked = true;
 
-            int index = detector.id;
+            int index = detector._id;
+
             ref DetectorData data = ref _cacheDetectorData[index];
 
             data.state = DetectorState.Inactive;
@@ -163,7 +165,7 @@ namespace SLE.Systems.Targeting
         {
             locked = true;
 
-            int index = detector.id;
+            int index = detector._id;
             ref DetectorData data = ref _cacheDetectorData[index];
 
             data.state = DetectorState.Active;
@@ -174,7 +176,7 @@ namespace SLE.Systems.Targeting
         {
             locked = true;
 
-            int index = detector.id;
+            int index = detector._id;
             ref DetectorData data = ref _cacheDetectorData[index];
 
             data.state = detector.enabled ? DetectorState.Active : DetectorState.Inactive;
@@ -195,7 +197,7 @@ namespace SLE.Systems.Targeting
                 activeTargetables.CopyTo(_cacheTargetables);
 
                 int i;
-                for (i = 0; i < length - 1; i++)
+                for (i = 0; i < length; i++)
                 {
                     _cacheTargetables[i]._id = i;
                     _cacheTargetableData[i]  = new TargetData(_cacheTargetables[i]);
@@ -218,7 +220,7 @@ namespace SLE.Systems.Targeting
                 activeTargetables.CopyTo(_cacheTargetables);
 
                 int i;
-                for (i = 0; i < length - 1; i++)
+                for (i = 0; i < length; i++)
                 {
                     _cacheTargetables[i]._id = i;
                     _cacheTargetableData[i]  = new TargetData(_cacheTargetables[i]);
@@ -231,7 +233,7 @@ namespace SLE.Systems.Targeting
         {
             locked = true;
 
-            int index = targetable.id;
+            int index = targetable._id;
             ref TargetData data = ref _cacheTargetableData[index];
 
             data.state = TargetState.Valid;
@@ -242,7 +244,7 @@ namespace SLE.Systems.Targeting
         {
             locked = true;
 
-            int index = targetable.id;
+            int index = targetable._id;
             ref TargetData data = ref _cacheTargetableData[index];
 
             data.state = TargetState.Invalid;
@@ -260,16 +262,19 @@ namespace SLE.Systems.Targeting
             _cacheDetectorData = null;
             _cacheTargetableData = null;
 
-            TargetDetector.OnComponentCreate -= OnDetectorCreatedUpdateCache;
-            TargetDetector.OnComponentDestroy -= OnDetectorDestroyedUpdateCache;
-            TargetDetector.OnComponentEnable -= OnDetectorEnableUpdateState;
-            TargetDetector.OnComponentDisable -= OnDetectorDisableUpdateState;
-            Targetable.OnComponentCreate -= OnTargetableCreatedUpdateCache;
-            Targetable.OnComponentDestroy -= OnTargetableDestroyedUpdateCache;
-            Targetable.OnComponentEnable -= OnTargetableEnableUpdateState;
-            Targetable.OnComponentDisable -= OnTargetableDisableUpdateState;
-
             base.Dispose(disposing);
+        }
+
+        public override void OnStop()
+        {
+            TargetDetector.OnComponentCreate  -= OnDetectorCreatedUpdateCache;
+            TargetDetector.OnComponentDestroy -= OnDetectorDestroyedUpdateCache;
+            TargetDetector.OnComponentEnable  -= OnDetectorEnableUpdateState;
+            TargetDetector.OnComponentDisable -= OnDetectorDisableUpdateState;
+            Targetable.OnComponentCreate  -= OnTargetableCreatedUpdateCache;
+            Targetable.OnComponentDestroy -= OnTargetableDestroyedUpdateCache;
+            Targetable.OnComponentEnable  -= OnTargetableEnableUpdateState;
+            Targetable.OnComponentDisable -= OnTargetableDisableUpdateState;
         }
 
         public override JobHandle OnJobUpdate(float time, float deltaTime, ref JobHandle handle)
@@ -279,6 +284,14 @@ namespace SLE.Systems.Targeting
             int i;
             int dLength = _cacheDetectors.Length;
             int tLength = _cacheTargetables.Length;
+
+            if (dLength == 0 || 
+                tLength == 0)
+            {
+                locked = true;
+                return handle;
+            }
+
             int batchCount = GetBatchCount(dLength);
 
             fixed (DetectorData* detectorDataPtr = &_cacheDetectorData[0])
@@ -337,6 +350,7 @@ namespace SLE.Systems.Targeting
             int i;
             int index;
             int dLength = _cacheDetectors.Length;
+            int tLength = _cacheTargetables.Length;
 
             fixed (DetectorData* detectorDataPtr = &_cacheDetectorData[0])
             {
@@ -344,10 +358,13 @@ namespace SLE.Systems.Targeting
                 {
                     index = detectorDataPtr[i].targetIndex;
 
-                    if (index >= 0)
+                    if (index >= 0 && index < tLength)
+                    {
                         _cacheDetectors[i].target = _cacheTargetables[index];
-                    else
-                        _cacheDetectors[i].target = null;
+                        continue;
+                    }
+
+                    _cacheDetectors[i].target = null;
                 }
             }
         }

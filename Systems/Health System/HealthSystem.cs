@@ -258,10 +258,10 @@ namespace SLE.Systems.Health
         {
             locked = true;
 
-            int length = 0;
+            
             if (activeHealths.Remove(health))
             {
-                length = activeHealths.Count;
+                int length = activeHealths.Count;
 
                 Array.Resize(ref _cacheHealths, length);
                 Array.Resize(ref _cacheHealthData, length);
@@ -397,14 +397,6 @@ namespace SLE.Systems.Health
                     healthBarFillTransformList.Dispose();
             }
 
-            Health.OnHealthChange        -= OnHealthChangeUpdateState;
-            Health.OnComponentCreate     -= OnHealthCreatedUpdateCache;
-            Health.OnComponentDestroy    -= OnHealthDestroyedUpdateCache;
-            HealthBar.OnComponentCreate  -= OnHealthBarCreatedUpdateCache;
-            HealthBar.OnComponentDestroy -= OnHealthBarDestroyedUpdateCache;
-            HealthBar.OnComponentEnable  -= OnHealthBarEnable;
-            HealthBar.OnComponentDisable -= OnHealthBarDisable;
-
             _instance            = null;
             _hpBarPrefab         = null;
             _mainCameraTransform = null;
@@ -420,6 +412,17 @@ namespace SLE.Systems.Health
             Resources.UnloadUnusedAssets();
 
             base.Dispose(disposing);
+        }
+
+        public override void OnStop()
+        {
+            Health.OnHealthChange        -= OnHealthChangeUpdateState;
+            Health.OnComponentCreate     -= OnHealthCreatedUpdateCache;
+            Health.OnComponentDestroy    -= OnHealthDestroyedUpdateCache;
+            HealthBar.OnComponentCreate  -= OnHealthBarCreatedUpdateCache;
+            HealthBar.OnComponentDestroy -= OnHealthBarDestroyedUpdateCache;
+            HealthBar.OnComponentEnable  -= OnHealthBarEnable;
+            HealthBar.OnComponentDisable -= OnHealthBarDisable;
         }
 
         public unsafe override JobHandle OnJobUpdate(float time, float deltaTime, ref JobHandle handle)

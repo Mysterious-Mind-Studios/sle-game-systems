@@ -198,14 +198,17 @@ namespace SLE.Systems.Weapon
             _cacheWeaponData = null;
             _cacheWeaponAmmo = null;
 
-            Weapon.OnComponentCreate -= OnWeaponCreatedUpdateCache;
-            Weapon.OnComponentDestroy -= OnWeaponDestroyedUpdateCache;
-            Weapon.OnWeaponFire -= OnWeaponFiredUpdateState;
-            Weapon.OnWeaponReload -= OnWeaponReloadedUpdateState;
-            Weapon.OnComponentEnable -= OnWeaponEnableUpdateState;
-            Weapon.OnComponentDisable -= OnWeaponDisableUpdateState;
-
             base.Dispose(disposing);
+        }
+
+        public override void OnStop()
+        {
+            Weapon.OnComponentCreate  -= OnWeaponCreatedUpdateCache;
+            Weapon.OnComponentDestroy -= OnWeaponDestroyedUpdateCache;
+            Weapon.OnWeaponFire       -= OnWeaponFiredUpdateState;
+            Weapon.OnWeaponReload     -= OnWeaponReloadedUpdateState;
+            Weapon.OnComponentEnable  -= OnWeaponEnableUpdateState;
+            Weapon.OnComponentDisable -= OnWeaponDisableUpdateState;
         }
 
         public override JobHandle OnJobUpdate(float time, float deltaTime, ref JobHandle handle)
