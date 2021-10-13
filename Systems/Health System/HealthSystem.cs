@@ -188,8 +188,6 @@ namespace SLE.Systems.Health
                             if (healthBar)
                             {
                                 ToggleHealthBars -= healthBar.attachedPrefab.gameObject.SetActive;
-
-                                GameObject.Destroy(healthBar.attachedPrefab.gameObject);
                                 GameObject.Destroy(healthBar);
                             }
                             
@@ -202,11 +200,7 @@ namespace SLE.Systems.Health
                             HealthBar healthBar = health.GetComponent<HealthBar>();
 
                             if (healthBar)
-                            {
                                 ToggleHealthBars -= healthBar.attachedPrefab.gameObject.SetActive;
-
-                                GameObject.Destroy(healthBar.attachedPrefab.gameObject);
-                            }
 
                             GameObject.Destroy(health.gameObject);
                         }
