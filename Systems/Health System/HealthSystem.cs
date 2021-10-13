@@ -432,7 +432,11 @@ namespace SLE.Systems.Health
 
             int length = _cacheHealthBars.Length;
 
-            if (length == 0) return handle;
+            if (length == 0)
+            {
+                locked = true;
+                return handle;
+            }
 
             int batchCount = GetBatchCount(length);
 

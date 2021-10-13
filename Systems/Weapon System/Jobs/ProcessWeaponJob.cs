@@ -29,12 +29,15 @@ namespace SLE.Systems.Weapon.Jobs
             {
                 case WeaponState.Shooting:
                     {
-                        if (time >= weapon.nextFireTime)
+                        if (ammo.amount > 0)
                         {
-                            weapon.nextFireTime = time + 1.0f / weapon.fireRate;
-                            weapon.hasFired = true;
+                            if (time >= weapon.nextFireTime)
+                            {
+                                weapon.nextFireTime = time + 1.0f / weapon.fireRate;
+                                weapon.hasFired = true;
 
-                            ammo.RemoveAmount(1, Source.Ammo);
+                                ammo.RemoveAmount(1, Source.Ammo);
+                            }
                         }
                         else
                             weapon.hasFired = false;
@@ -45,16 +48,20 @@ namespace SLE.Systems.Weapon.Jobs
 
                 case WeaponState.Reloading:
                     {
-                        float elapsedTime = time - weapon.lastReloadTime;
+                        if (ammo.magazineAmmo > 0)
+                        {
+                            float elapsedTime = time - weapon.lastReloadTime;
 
-                        if (elapsedTime < weapon.reloadTime)
-                            return;
+                            if (elapsedTime < weapon.reloadTime)
+                                return;
 
-                        weapon.lastReloadTime = time;
+                            weapon.lastReloadTime = time;
 
-                        int reloadAmount = ammo.ammoCapacity - ammo.amount;
-                        ammo.AddAmount(reloadAmount, Source.Ammo);
-                        ammo.RemoveAmount(reloadAmount, Source.Magazine);
+                            int reloadAmount = ammo.ammoCapacity - ammo.amount;
+                            ammo.AddAmount(reloadAmount, Source.Ammo);
+                            ammo.RemoveAmount(reloadAmount, Source.Magazine);
+
+                        }
 
                         weapon.state = WeaponState.Ready;
                     }

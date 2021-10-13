@@ -29,16 +29,11 @@ namespace SLE.Systems.Weapon
         [Space]
         [SerializeField]
         internal Transform firePoint;
-
-        [Space]
-        [SerializeField]
-        internal LayerMask targetLayer;
 #else
         internal WeaponInfo weaponInfo;
         internal AmmoInfo   ammoInfo;
         internal Ammo       ammo;
         internal Transform  firePoint;
-        internal LayerMask  targetLayer;
 #endif
 
         protected abstract void OnFire();

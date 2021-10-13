@@ -213,11 +213,16 @@ namespace SLE.Systems.Weapon
 
         public override JobHandle OnJobUpdate(float time, float deltaTime, ref JobHandle handle)
         {
-            if (locked) return handle;
+            if (locked || !shouldUpdateState) return handle;
             
-            if (!shouldUpdateState) return handle;
-
             int length = _cacheWeapons.Length;
+
+            if(length == 0)
+            {
+                locked = true;
+                return handle;
+            }
+
             int batchCount = GetBatchCount(length);
 
             fixed (WeaponData* weaponDataPtr = &_cacheWeaponData[0])
