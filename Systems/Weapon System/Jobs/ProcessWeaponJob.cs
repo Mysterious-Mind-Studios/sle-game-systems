@@ -29,21 +29,31 @@ namespace SLE.Systems.Weapon.Jobs
             {
                 case WeaponState.Shooting:
                     {
-                        if (ammo.amount > 0)
+                        if(ammo.infinity)
                         {
                             if (time >= weapon.nextFireTime)
                             {
                                 weapon.nextFireTime = time + 1.0f / weapon.fireRate;
                                 weapon.hasFired = true;
+                            }
+                            else
+                                weapon.hasFired = false;
+                        }
+
+                        if (ammo.amount > 0)
+                        {
+                            if (time >= weapon.nextFireTime)
+                            {
+                                weapon.nextFireTime = time + 1.0f / weapon.fireRate;
 
                                 ammo.RemoveAmount(1, Source.Ammo);
-
-                                weapon.state = WeaponState.Ready;
-                                break;
+                                
+                                weapon.hasFired = true;
                             }
+                            else
+                                weapon.hasFired = false;
                         }
-                        
-                        weapon.hasFired = false;
+
                         weapon.state = WeaponState.Ready;
                     }
                     break;
@@ -62,7 +72,6 @@ namespace SLE.Systems.Weapon.Jobs
                             int reloadAmount = ammo.ammoCapacity - ammo.amount;
                             ammo.AddAmount(reloadAmount, Source.Ammo);
                             ammo.RemoveAmount(reloadAmount, Source.Magazine);
-
                         }
 
                         weapon.state = WeaponState.Ready;

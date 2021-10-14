@@ -50,9 +50,6 @@ namespace SLE.Systems.ObjectPooling
             PoolObject item = poolQueue.Dequeue();
             poolQueue.Enqueue(item);
 
-            item.transform.parent = null;
-            item.gameObject.SetActive(true);
-
             item.OnObjectUse();
 
             return item;

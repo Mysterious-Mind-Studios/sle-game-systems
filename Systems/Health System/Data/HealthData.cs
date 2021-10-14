@@ -18,8 +18,8 @@ namespace SLE.Systems.Health.Data
             normalized = Utils.Math.Normalized(current, max);
         }
 
-        public int   max;
-        public int   current;
+        public float max;
+        public float current;
         public float normalized;
     }
 }

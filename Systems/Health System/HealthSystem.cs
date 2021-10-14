@@ -150,7 +150,7 @@ namespace SLE.Systems.Health
 
             ref HealthData healthData = ref _cacheHealthData[health._id];
 
-            if (health._currentHealthPoints == 0)
+            if (health._currentHealthPoints <= 0.0f)
             {
                 switch (health.onZeroHealth)
                 {

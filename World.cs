@@ -88,7 +88,8 @@ namespace SLE
                 job = _systems[i].OnJobUpdate(time, deltaTime, ref job);
                 jobHandleList[i] = job;
             }
-            JobHandle.CompleteAll(jobHandleList);
+            job.Complete();
+            //JobHandle.CompleteAll(jobHandleList);
 
             time      = Time.time;
             deltaTime = Time.deltaTime;

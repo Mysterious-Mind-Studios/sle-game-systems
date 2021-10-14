@@ -51,9 +51,9 @@ namespace SLE.Systems.Weapon
                 weapon._id = i;
 
                 _cacheWeaponData[i] = new WeaponData(weapon);
-                _cacheWeaponAmmo[i] = new Ammo(in weapon.ammoInfo);
-                _cacheWeaponAmmo[i].AddAmount(weapon.ammo.amount, Source.Ammo);
-                _cacheWeaponAmmo[i].AddAmount(weapon.ammo.magazineAmmo, Source.Magazine);
+                _cacheWeaponAmmo[i] = new Ammo(in weapon._ammoInfo);
+                _cacheWeaponAmmo[i].AddAmount(weapon._ammo.amount, Source.Ammo);
+                _cacheWeaponAmmo[i].AddAmount(weapon._ammo.magazineAmmo, Source.Magazine);
             }
 
             shouldUpdateState = false;
@@ -98,9 +98,9 @@ namespace SLE.Systems.Weapon
                     _weapon._id = i;
 
                     _cacheWeaponData[i] = new WeaponData(_weapon);
-                    _cacheWeaponAmmo[i] = new Ammo(in _weapon.ammoInfo);
-                    _cacheWeaponAmmo[i].AddAmount(_weapon.ammo.amount, Source.Ammo);
-                    _cacheWeaponAmmo[i].AddAmount(_weapon.ammo.magazineAmmo, Source.Magazine);
+                    _cacheWeaponAmmo[i] = new Ammo(in _weapon._ammoInfo);
+                    _cacheWeaponAmmo[i].AddAmount(_weapon._ammo.amount, Source.Ammo);
+                    _cacheWeaponAmmo[i].AddAmount(_weapon._ammo.magazineAmmo, Source.Magazine);
                 }
             }
 
@@ -128,9 +128,14 @@ namespace SLE.Systems.Weapon
                     _weapon._id = i;
 
                     _cacheWeaponData[i] = new WeaponData(_weapon);
-                    _cacheWeaponAmmo[i] = new Ammo(in _weapon.ammoInfo);
-                    _cacheWeaponAmmo[i].AddAmount(_weapon.ammo.amount, Source.Ammo);
-                    _cacheWeaponAmmo[i].AddAmount(_weapon.ammo.magazineAmmo, Source.Magazine);
+
+                    _cacheWeaponAmmo[i] = new Ammo(in _weapon._ammoInfo);
+
+                    ref Ammo ammo = ref _cacheWeaponAmmo[i];
+
+                    ammo.infinity = _weapon._ammo.infinity;
+                    ammo.AddAmount(_weapon._ammo.amount, Source.Ammo);
+                    ammo.AddAmount(_weapon._ammo.magazineAmmo, Source.Magazine);
                 }
             }
 
@@ -265,7 +270,7 @@ namespace SLE.Systems.Weapon
                         if (weaponDataPtr[i].state != WeaponState.Ready)
                             shouldUpdateState = true;
 
-                        _cacheWeapons[i].ammo = weaponAmmoPtr[i];
+                        _cacheWeapons[i]._ammo = weaponAmmoPtr[i];
                     }
                 }
             }

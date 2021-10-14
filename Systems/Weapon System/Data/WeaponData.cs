@@ -6,17 +6,17 @@ namespace SLE.Systems.Weapon.Data
     {
         public WeaponData(in Weapon weapon)
         {
-            range      = weapon.weaponInfo.range;
-            fireRate   = weapon.weaponInfo.fireRate;
-            reloadTime = weapon.weaponInfo.reloadTime;
+            range      = weapon._weaponInfo.range;
+            fireRate   = weapon._weaponInfo.fireRate;
+            reloadTime = weapon._weaponInfo.reloadTime;
 
             state = weapon.enabled ? WeaponState.Ready : WeaponState.Inactive;
 
             nextFireTime   = 0f;
             lastReloadTime = 0f;
 
-            firePoint = weapon.firePoint ?
-                            new float3x2(weapon.firePoint.position, weapon.firePoint.forward) :
+            firePoint = weapon._firePoint ?
+                            new float3x2(weapon._firePoint.position, weapon._firePoint.forward) :
                             new float3x2(weapon.transform.position, weapon.transform.forward);
 
             hasFired    = false;

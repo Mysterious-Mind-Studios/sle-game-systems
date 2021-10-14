@@ -18,25 +18,32 @@ namespace SLE.Systems.Weapon
 
 #if UNDER_DEVELOPMENT
         [SerializeField]
-        internal WeaponInfo weaponInfo;
+        internal WeaponInfo _weaponInfo;
 
         [SerializeField]
-        internal AmmoInfo ammoInfo;
+        internal AmmoInfo _ammoInfo;
 
         [SerializeField]
-        internal Ammo ammo;
+        internal Ammo _ammo;
 
         [Space]
         [SerializeField]
-        internal Transform firePoint;
+        internal Transform _firePoint;
 #else
-        internal WeaponInfo weaponInfo;
-        internal AmmoInfo   ammoInfo;
-        internal Ammo       ammo;
-        internal Transform  firePoint;
+        internal WeaponInfo _weaponInfo;
+        internal AmmoInfo   _ammoInfo;
+        internal Ammo       _ammo;
+        internal Transform  _firePoint;
 #endif
 
-        protected ref readonly Transform FirePoint => ref firePoint;
+        public float damage        => _weaponInfo.damage;
+        public float fireRate      => _weaponInfo.fireRate;
+        public float reloadTime    => _weaponInfo.reloadTime;
+        public float spread        => _weaponInfo.spread;
+        public float range         => _weaponInfo.range;
+        public Ammo  ammo          => _ammo;
+        public Transform firePoint => _firePoint;
+        public Transform projectilePrefab => _weaponInfo.projectile;
 
         protected abstract void OnFire();
 
@@ -50,7 +57,7 @@ namespace SLE.Systems.Weapon
         }
         public override string ToString()
         {
-            return weaponInfo.name;
+            return _weaponInfo.name;
         }
     }
 }
