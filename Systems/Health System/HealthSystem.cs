@@ -112,7 +112,7 @@ namespace SLE.Systems.Health
                 }
             }
 
-            locked = false;
+            locked = length == 0;
         }
         ~HealthSystem()
         {
@@ -154,7 +154,7 @@ namespace SLE.Systems.Health
             {
                 switch (health.onZeroHealth)
                 {
-                    case HealthBehaviour.Disable:
+                    case DeathBehaviour.Disable:
                         {
                             HealthBar healthBar = health.GetComponent<HealthBar>();
 
@@ -170,7 +170,7 @@ namespace SLE.Systems.Health
                         }
                         break;
 
-                    case HealthBehaviour.DisableGameObject:
+                    case DeathBehaviour.DisableGameObject:
                         {
                             HealthBar healthBar = health.GetComponent<HealthBar>();
 
@@ -181,7 +181,7 @@ namespace SLE.Systems.Health
                         }
                         break;
 
-                    case HealthBehaviour.Destroy:
+                    case DeathBehaviour.Destroy:
                         {
                             HealthBar healthBar = health.GetComponent<HealthBar>();
 
@@ -195,7 +195,7 @@ namespace SLE.Systems.Health
                         }
                         break;
 
-                    case HealthBehaviour.DestroyGameObject:
+                    case DeathBehaviour.DestroyGameObject:
                         {
                             HealthBar healthBar = health.GetComponent<HealthBar>();
 
@@ -278,7 +278,7 @@ namespace SLE.Systems.Health
                 }
             }
 
-            locked = false;
+            locked = activeHealths.Count == 0;
         }
         private void OnHealthBarCreatedUpdateCache(HealthBar healthBar)
         {
@@ -443,24 +443,26 @@ namespace SLE.Systems.Health
                     mainCameraForward = _mainCameraTransform.forward
                 };
 
-                handle = updateHealthBarsTransformJob.Schedule(healthBarTransformList, handle);
-            }
+                var jobHandle1 = updateHealthBarsTransformJob.Schedule(healthBarTransformList);
 
-            if (updateVisualHealthChanges)
-            {
-                NativeArray<HealthData> healthData = new NativeArray<HealthData>(_cacheHealthData, Allocator.TempJob);
-
-                UpdateHealthBarFillTransformJob updateHealthBarFillTransformJob = new UpdateHealthBarFillTransformJob
+                if (updateVisualHealthChanges)
                 {
-                    healthDataArray = healthData
-                };
+                    NativeArray<HealthData> healthData = new NativeArray<HealthData>(_cacheHealthData, Allocator.TempJob);
 
-                handle = updateHealthBarFillTransformJob.Schedule(healthBarFillTransformList, handle);
+                    UpdateHealthBarFillTransformJob updateHealthBarFillTransformJob = new UpdateHealthBarFillTransformJob
+                    {
+                        healthDataArray = healthData
+                    };
 
-                updateVisualHealthChanges = false;
+                    var jobHandle2 = updateHealthBarFillTransformJob.Schedule(healthBarFillTransformList, jobHandle1);
+
+                    updateVisualHealthChanges = false;
+                    
+                    return jobHandle2;
+                }
+                
+                return jobHandle1;
             }
-
-            return handle;
         }
     }
 }

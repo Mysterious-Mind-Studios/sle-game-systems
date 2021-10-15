@@ -11,8 +11,6 @@ namespace SLE.Systems.Weapon
 
     public abstract class Weapon : SLEComponent<Weapon>
     {
-        internal static Action<Weapon> OnSucessfullFire = wpn => wpn.OnFire();
-
         internal static event OnObjectChange<Weapon> OnWeaponFire;
         internal static event OnObjectChange<Weapon> OnWeaponReload;
 

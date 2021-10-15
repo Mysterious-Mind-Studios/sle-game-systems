@@ -51,7 +51,7 @@ namespace SLE.Systems.Targeting
             }
         }
 
-#if UNDER_DEVELOPMENT
+#if UNITY_EDITOR
 
         [Space]
         [Header("Editor Settings")]

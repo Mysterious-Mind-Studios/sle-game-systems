@@ -19,7 +19,7 @@ namespace SLE.Systems.Health
         internal float _currentHealthPoints;
 
         [SerializeField]
-        internal HealthBehaviour onZeroHealth = HealthBehaviour.DisableGameObject;
+        internal DeathBehaviour onZeroHealth = DeathBehaviour.DisableGameObject;
 #else
         internal int _maxHealthPoints;
         internal int _currentHealthPoints;

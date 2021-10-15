@@ -73,7 +73,8 @@ namespace SLE
 
             jobHandleList = new NativeArray<JobHandle>(_systems.Length, Allocator.Persistent);
 
-            Physics.autoSimulation = allowPhysicsSimulation;
+            Physics.autoSimulation      = allowPhysicsSimulation;
+            Application.targetFrameRate = 300;
         }
         private void Update()
         {
@@ -88,8 +89,7 @@ namespace SLE
                 job = _systems[i].OnJobUpdate(time, deltaTime, ref job);
                 jobHandleList[i] = job;
             }
-            job.Complete();
-            //JobHandle.CompleteAll(jobHandleList);
+            JobHandle.CompleteAll(jobHandleList);
 
             time      = Time.time;
             deltaTime = Time.deltaTime;

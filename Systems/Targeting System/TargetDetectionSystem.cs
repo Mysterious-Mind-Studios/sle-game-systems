@@ -70,11 +70,7 @@ namespace SLE.Systems.Targeting
             locked = detLength == 0;
             shouldRunUpdate = false;
         }
-        ~TargetDetectionSystem()
-        {
-            _instance = null;
-            Dispose(false);
-        }
+
 
         HashSet<TargetDetector> activeDetectors;
         HashSet<Targetable>     activeTargetables;
@@ -136,7 +132,7 @@ namespace SLE.Systems.Targeting
                 }
             }
 
-            locked = false;
+            locked = activeDetectors.Count == 0;
         }
         private void OnDetectorEnableUpdateState(TargetDetector detector)
         {
@@ -154,32 +150,9 @@ namespace SLE.Systems.Targeting
             locked = true;
 
             int index = detector._id;
-
             ref DetectorData data = ref _cacheDetectorData[index];
 
             data.state = DetectorState.Inactive;
-
-            locked = false;
-        }
-        private void OnDetectorSetTargetUpdateState(TargetDetector detector)
-        {
-            locked = true;
-
-            int index = detector._id;
-            ref DetectorData data = ref _cacheDetectorData[index];
-
-            data.state = DetectorState.Active;
-
-            locked = false;
-        }
-        private void OnDetectorClearTargetUpdateState(TargetDetector detector)
-        {
-            locked = true;
-
-            int index = detector._id;
-            ref DetectorData data = ref _cacheDetectorData[index];
-
-            data.state = detector.enabled ? DetectorState.Active : DetectorState.Inactive;
 
             locked = false;
         }
@@ -337,12 +310,11 @@ namespace SLE.Systems.Targeting
                         time = time
                     };
 
-                    handle = findTargetJob.Schedule(dLength, batchCount, handle);
+                    var jobHandle = findTargetJob.Schedule(dLength, batchCount);
 
+                    return jobHandle;
                 }
             }
-
-            return handle;
         }
         public override void OnUpdate(float time, float deltaTime)
         {

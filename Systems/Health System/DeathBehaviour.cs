@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SLE.Systems.Health
 {
-    public enum HealthBehaviour
+    public enum DeathBehaviour
     {
 #if UNDER_DEVELOPMENT
         [Tooltip("Disables the component itself and the health bar associated with it.")]
@@ -16,7 +16,7 @@ namespace SLE.Systems.Health
 #endif
         Disable,
 #if UNDER_DEVELOPMENT
-        [Tooltip("Set the entire game object associated with this component and the health bar associated with it inactive.")]
+        [Tooltip("[Recommended]\nSet the entire game object associated with this component and the health bar associated with it inactive.")]
 #else
         /// <summary>
         /// Set the entire game object associated with this component

@@ -51,22 +51,20 @@ namespace SLE.Systems.Weapon
                 weapon._id = i;
 
                 _cacheWeaponData[i] = new WeaponData(weapon);
+
                 _cacheWeaponAmmo[i] = new Ammo(in weapon._ammoInfo);
+                _cacheWeaponAmmo[i].infinity = weapon._ammo.infinity;
                 _cacheWeaponAmmo[i].AddAmount(weapon._ammo.amount, Source.Ammo);
                 _cacheWeaponAmmo[i].AddAmount(weapon._ammo.magazineAmmo, Source.Magazine);
             }
 
-            shouldUpdateState = false;
-        }
-        ~WeaponSystem()
-        {
-            _instance = null;
-            Dispose(false);
+            locked = length == 0;
         }
 
-        private HashSet<Weapon> activeWeapons;
-        private bool            locked;
-        private bool            shouldUpdateState;
+
+        HashSet<Weapon> activeWeapons;
+        bool            locked;
+        bool            shouldRunUpdate;
 
         // --- Cache data. --- //
 
@@ -139,13 +137,13 @@ namespace SLE.Systems.Weapon
                 }
             }
 
-            locked = false;
+            locked = activeWeapons.Count == 0;
         }
         private void OnWeaponEnableUpdateState(Weapon weapon)
         {
             locked = true;
 
-            int index = weapon.id;
+            int index = weapon._id;
             ref WeaponData data = ref _cacheWeaponData[index];
 
             data.state = WeaponState.Ready;
@@ -156,7 +154,7 @@ namespace SLE.Systems.Weapon
         {
             locked = true;
 
-            int index = weapon.id;
+            int index = weapon._id;
             ref WeaponData data = ref _cacheWeaponData[index];
 
             data.state = WeaponState.Inactive;
@@ -167,13 +165,13 @@ namespace SLE.Systems.Weapon
         {
             locked = true;
 
-            int index = weapon.id;
+            int index = weapon._id;
             ref WeaponData data = ref _cacheWeaponData[index];
 
             if (data.state == WeaponState.Ready)
             {
                 data.state = WeaponState.Shooting;
-                shouldUpdateState = true;
+                shouldRunUpdate = true;
             }
 
             locked = false;
@@ -182,14 +180,14 @@ namespace SLE.Systems.Weapon
         {
             locked = true;
 
-            int index = weapon.id;
+            int index = weapon._id;
             ref WeaponData data = ref _cacheWeaponData[index];
 
             if (data.state == WeaponState.Ready)
             {
                 data.lastReloadTime = Time.time;
                 data.state = WeaponState.Reloading;
-                shouldUpdateState = true;
+                shouldRunUpdate = true;
             }
 
             locked = false;
@@ -218,15 +216,10 @@ namespace SLE.Systems.Weapon
 
         public override JobHandle OnJobUpdate(float time, float deltaTime, ref JobHandle handle)
         {
-            if (locked || !shouldUpdateState) return handle;
-            
-            int length = _cacheWeapons.Length;
+            if (locked) return handle;
+            if (!shouldRunUpdate) return handle;
 
-            if(length == 0)
-            {
-                locked = true;
-                return handle;
-            }
+            int length = _cacheWeapons.Length;
 
             int batchCount = GetBatchCount(length);
 
@@ -241,7 +234,7 @@ namespace SLE.Systems.Weapon
                         time = time
                     };
 
-                    JobHandle jobHandle = weaponJob.Schedule(length, batchCount, handle);
+                    JobHandle jobHandle = weaponJob.Schedule(length, batchCount);
                 
                     return jobHandle;
                 }
@@ -250,10 +243,9 @@ namespace SLE.Systems.Weapon
         public override unsafe void OnUpdate(float time, float deltaTime)
         {
             if (locked) return;
+            if (!shouldRunUpdate) return;
 
-            if (!shouldUpdateState) return;
-
-            shouldUpdateState = false;
+            shouldRunUpdate = false;
 
             fixed (WeaponData* weaponDataPtr = &_cacheWeaponData[0])
             {
@@ -264,13 +256,17 @@ namespace SLE.Systems.Weapon
 
                     for (i = 0; i < length; i++)
                     {
-                        if (weaponDataPtr[i].hasFired)
-                            Weapon.OnSucessfullFire(_cacheWeapons[i]);
+                        ref WeaponData data = ref _cacheWeaponData[i];
 
-                        if (weaponDataPtr[i].state != WeaponState.Ready)
-                            shouldUpdateState = true;
+                        if (data.hasFired)
+                            _cacheWeapons[i].SendMessage("OnFire");
+
+                        if (data.state != WeaponState.Ready)
+                            shouldRunUpdate = true;
 
                         _cacheWeapons[i]._ammo = weaponAmmoPtr[i];
+
+                        data.hasFired = false;
                     }
                 }
             }
