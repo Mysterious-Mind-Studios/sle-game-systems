@@ -28,13 +28,6 @@ namespace SLE
 		private SystemBase[] _systems = null;
         private NativeArray<JobHandle> jobHandleList;
 
-#if UNDER_DEVELOPMENT
-        [SerializeField]
-        private bool allowPhysicsSimulation;
-#else
-        private bool allowPhysicsSimulation;
-#endif
-
         private SystemBase[] InitSystems()
         {
             List<SystemBase> systemList = new List<SystemBase>();
@@ -73,7 +66,6 @@ namespace SLE
 
             jobHandleList = new NativeArray<JobHandle>(_systems.Length, Allocator.Persistent);
 
-            Physics.autoSimulation      = allowPhysicsSimulation;
             Application.targetFrameRate = 300;
         }
         private void Update()

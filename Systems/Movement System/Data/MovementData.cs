@@ -5,15 +5,14 @@ using UnityEngine;
 
 namespace SLE.Systems.Movement.Data
 {
-    struct MoverData
+    struct MovementData
     {
-        public MoverData(in Mover mover)
+        public MovementData(in Movement movement)
         {
-            speed     = mover.speed;
-            direction = mover.direction;
+            speed     = movement.speed;
+            direction = movement.transform.TransformDirection(Vector3.forward);
         }
-
-        public MoverData(in MoverData other)
+        public MovementData(in MovementData other)
         {
             speed     = other.speed;
             direction = other.direction;

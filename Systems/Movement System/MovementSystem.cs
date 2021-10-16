@@ -22,27 +22,27 @@ namespace SLE.Systems.Movement
 
         public MovementSystem()
         {
-            activeMovers = new HashSet<Mover>(GameObject.FindObjectsOfType<Mover>());
+            activeMovers = new HashSet<Movement>(GameObject.FindObjectsOfType<Movement>());
 
             int length = activeMovers.Count;
 
-            Mover.OnComponentCreate  += OnMoverCreateUpdateCache;
-            Mover.OnComponentDestroy += OnMoverDestroyUpdateCache;
-            Mover.OnComponentEnable  += OnMoverEnableUpdateData;
-            Mover.OnComponentDisable += OnMoverDisableUpdateData;
+            Movement.OnComponentCreate  += OnMovementCreateUpdateCache;
+            Movement.OnComponentDestroy += OnMovementDestroyUpdateCache;
+            Movement.OnComponentEnable  += OnMovementEnableUpdateData;
+            Movement.OnComponentDisable += OnMovementDisableUpdateData;
             
-            _cacheMovers        = new Mover[length];
+            _cacheMovements     = new Movement[length];
             moversTransformList = new TransformAccessArray(length);
 
-            activeMovers.CopyTo(_cacheMovers);
+            activeMovers.CopyTo(_cacheMovements);
 
             int i;
             for (i = 0; i < length; i++)
             {
-                Mover mover = _cacheMovers[i];
+                Movement mover = _cacheMovements[i];
 
                 mover._id = i;
-                _cacheMoverData[i] = new MoverData(mover);
+                _cacheMovementData[i] = new MovementData(mover);
 
                 moversTransformList.Add(mover.transform);
             }
@@ -56,20 +56,20 @@ namespace SLE.Systems.Movement
         }
 
 
-        HashSet<Mover> activeMovers;
+        HashSet<Movement> activeMovers;
 
         bool locked;
 
         // --- Cache Data --- //
 
-        Mover[]     _cacheMovers;
-        MoverData[] _cacheMoverData;
+        Movement[]     _cacheMovements;
+        MovementData[] _cacheMovementData;
 
         TransformAccessArray moversTransformList;
 
         // --- Cache Data --- //
 
-        private void OnMoverCreateUpdateCache(Mover mover)
+        private void OnMovementCreateUpdateCache(Movement mover)
         {
             locked = true;
 
@@ -77,21 +77,21 @@ namespace SLE.Systems.Movement
             {
                 int length = activeMovers.Count;
 
-                Array.Resize(ref _cacheMovers, length);
-                Array.Resize(ref _cacheMoverData, length);
+                Array.Resize(ref _cacheMovements, length);
+                Array.Resize(ref _cacheMovementData, length);
 
                 moversTransformList.capacity = length;
                 moversTransformList.SetTransforms(null);
 
-                activeMovers.CopyTo(_cacheMovers);
+                activeMovers.CopyTo(_cacheMovements);
 
                 int i;
                 for (i = 0; i < length; i++)
                 {
-                    Mover _mover = _cacheMovers[i];
+                    Movement _mover = _cacheMovements[i];
 
                     _mover._id = i;
-                    _cacheMoverData[i] = new MoverData(_mover);
+                    _cacheMovementData[i] = new MovementData(_mover);
 
                     moversTransformList.Add(_mover.transform);
                 }
@@ -99,7 +99,7 @@ namespace SLE.Systems.Movement
 
             locked = false;
         }
-        private void OnMoverDestroyUpdateCache(Mover mover)
+        private void OnMovementDestroyUpdateCache(Movement mover)
         {
             locked = true;
 
@@ -107,21 +107,21 @@ namespace SLE.Systems.Movement
             {
                 int length = activeMovers.Count;
 
-                Array.Resize(ref _cacheMovers, length);
-                Array.Resize(ref _cacheMoverData, length);
+                Array.Resize(ref _cacheMovements, length);
+                Array.Resize(ref _cacheMovementData, length);
 
                 moversTransformList.capacity = length;
                 moversTransformList.SetTransforms(null);
 
-                activeMovers.CopyTo(_cacheMovers);
+                activeMovers.CopyTo(_cacheMovements);
 
                 int i;
                 for (i = 0; i < length; i++)
                 {
-                    Mover _mover = _cacheMovers[i];
+                    Movement _mover = _cacheMovements[i];
 
                     _mover._id = i;
-                    _cacheMoverData[i] = new MoverData(_mover);
+                    _cacheMovementData[i] = new MovementData(_mover);
 
                     moversTransformList.Add(_mover.transform);
                 }
@@ -129,28 +129,21 @@ namespace SLE.Systems.Movement
 
             locked = activeMovers.Count == 0;
         }
-        private void OnMoverEnableUpdateData(Mover mover)
+        private void OnMovementEnableUpdateData(Movement mover)
         {
             int index = mover._id;
-            ref MoverData moverData = ref _cacheMoverData[index];
+            ref MovementData moverData = ref _cacheMovementData[index];
 
             moverData.direction = mover.direction;
         }
-        private void OnMoverDisableUpdateData(Mover mover)
+        private void OnMovementDisableUpdateData(Movement mover)
         {
             int index = mover._id;
-            ref MoverData moverData = ref _cacheMoverData[index];
+            ref MovementData moverData = ref _cacheMovementData[index];
 
             moverData.direction = INVALID_DIRECTION;
         }
 
-        public override void OnStop()
-        {
-            Mover.OnComponentCreate  -= OnMoverCreateUpdateCache;
-            Mover.OnComponentDestroy -= OnMoverDestroyUpdateCache;
-            Mover.OnComponentEnable  -= OnMoverEnableUpdateData;
-            Mover.OnComponentDisable -= OnMoverDisableUpdateData;
-        }
         protected override void Dispose(bool disposing)
         {
             if(disposing)
@@ -163,18 +156,31 @@ namespace SLE.Systems.Movement
 
             activeMovers = null;
 
-            _cacheMovers = null;
-            _cacheMoverData = null;
+            _cacheMovements = null;
+            _cacheMovementData = null;
 
             base.Dispose(disposing);
         }
 
+        public override void OnStop()
+        {
+            Movement.OnComponentCreate  -= OnMovementCreateUpdateCache;
+            Movement.OnComponentDestroy -= OnMovementDestroyUpdateCache;
+            Movement.OnComponentEnable  -= OnMovementEnableUpdateData;
+            Movement.OnComponentDisable -= OnMovementDisableUpdateData;
+        }
         public unsafe override JobHandle OnJobUpdate(float time, float deltaTime, ref JobHandle handle)
         {
             if (locked) return handle;
 
-            fixed(MoverData* moverDataPtr = &_cacheMoverData[0])
+            int length = _cacheMovements.Length;
+            fixed(MovementData* moverDataPtr = &_cacheMovementData[0])
             {
+                for (int i = 0; i < length; i++)
+                {
+                    moverDataPtr[i] = new MovementData(_cacheMovements[i]);
+                }
+
                 return new ProcessMoverJob
                 {
                     moverData = moverDataPtr,

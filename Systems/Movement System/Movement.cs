@@ -9,7 +9,7 @@ namespace SLE.Systems.Movement
 {
     using SLE.Events;
 
-    public class Mover : SLEComponent<Mover>
+    public class Movement : SLEComponent<Movement>
     {
         public float speed;
 

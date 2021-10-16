@@ -16,23 +16,25 @@ namespace SLE.Systems.Weapon
 
 #if UNDER_DEVELOPMENT
         [SerializeField]
+#endif
         internal WeaponInfo _weaponInfo;
 
+#if UNDER_DEVELOPMENT
         [SerializeField]
+#endif
         internal AmmoInfo _ammoInfo;
 
+#if UNDER_DEVELOPMENT
         [SerializeField]
+#endif
         internal Ammo _ammo;
 
+#if UNDER_DEVELOPMENT
         [Space]
         [SerializeField]
-        internal Transform _firePoint;
-#else
-        internal WeaponInfo _weaponInfo;
-        internal AmmoInfo   _ammoInfo;
-        internal Ammo       _ammo;
-        internal Transform  _firePoint;
 #endif
+        internal Transform _firePoint;
+
 
         public float damage        => _weaponInfo.damage;
         public float fireRate      => _weaponInfo.fireRate;

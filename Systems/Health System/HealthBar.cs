@@ -10,17 +10,15 @@ namespace SLE.Systems.Health
         [SerializeField]
         [Tooltip("The transform object attached to this game object that the generated health bar will be positioned at. \n\n" +
                  "Note: Highly recommended to use an empty game object. The health bars are auto generated at runtime.")]
+#endif
         internal Transform attachedPrefab;
 
+#if UNDER_DEVELOPMENT
         [SerializeField]
         [Tooltip("Indicates whether the bar should keep looking at the main camera. \n" +
                  "Unchecking this option makes the bar be statically rotated in the same position.")]
-        internal bool billboard = true;
-#else
-        internal Transform barAnchor;
-        internal Vector2   barScale = Vector2.one;
-        internal bool      billboard = true;
 #endif
+        internal bool billboard = true;
 
         /// <summary>
         /// [Internal usage only]

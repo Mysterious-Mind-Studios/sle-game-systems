@@ -9,14 +9,13 @@ namespace SLE.Systems.ObjectPooling
     {
 #if UNDER_DEVELOPMENT
         [SerializeField]
+#endif
         internal PoolObject poolObject;
 
+#if UNDER_DEVELOPMENT
         [SerializeField]
-        internal int poolSize;
-#else
-        internal GameObject prefab;
-        internal int poolSize;
 #endif
+        internal int poolSize;
 
         Queue<PoolObject> poolQueue;
 

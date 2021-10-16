@@ -16,10 +16,5 @@ namespace SLE.Systems.ObjectPooling
         {
             owner?.ReturnItem(this);
         }
-
-        private void Update()
-        {
-            transform.Translate(Vector3.forward * 15 * Time.deltaTime);   
-        }
     }
 }

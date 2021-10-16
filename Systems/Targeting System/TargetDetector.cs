@@ -1,8 +1,11 @@
 
-
-using UnityEditor;
 using UnityEngine;
 
+#if UNDER_DEVELOPMENT
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+#endif
 
 namespace SLE.Systems.Targeting
 {
@@ -17,27 +20,28 @@ namespace SLE.Systems.Targeting
 #if UNDER_DEVELOPMENT
         [Space]
         [SerializeField]
+#endif
         internal Targetable _target;
 
+#if UNDER_DEVELOPMENT
         [Space]
         [Tooltip("Used to define a custom origin point for the field of detection view . " +
                  "\n If it's not initialized then the object's position is used instead as a reference.")]
         [SerializeField]
+#endif
         internal Transform _fovOrigin;
 
+#if UNDER_DEVELOPMENT
         [Space]
         [SerializeField]
+#endif
         internal TargetDetectorData _detectorInfo;
 
+#if UNDER_DEVELOPMENT
         [Space]
         [SerializeField]
-        internal LayerMask _targetLayer;
-#else
-        internal Targetable         _target;
-        internal Transform          _fovOrigin;
-        internal TargetDetectorData _detectorInfo;
-        internal LayerMask          _targetLayer;
 #endif
+        internal LayerMask _targetLayer;
         public Targetable target
         {
             get => _target;
@@ -51,6 +55,7 @@ namespace SLE.Systems.Targeting
             }
         }
 
+#if UNDER_DEVELOPMENT
 #if UNITY_EDITOR
 
         [Space]
@@ -76,6 +81,7 @@ namespace SLE.Systems.Targeting
             Handles.DrawLine(_fovPoint, _target.aimPoint.position);
         }
 
+#endif
 #endif
     }
 }

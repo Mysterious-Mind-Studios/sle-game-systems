@@ -10,13 +10,11 @@ namespace SLE.Systems.Targeting
     public sealed class Targetable : SLEComponent<Targetable>
     {
 #if UNDER_DEVELOPMENT
-
         [SerializeField]
-        internal Transform aimPoint;
-#else
-        internal Transform aimPoint;
 #endif
+        internal Transform aimPoint;
 
-        public Vector3 position { get => aimPoint.position; }
+        public Vector3    position => aimPoint.position;
+        public Quaternion rotaton  => aimPoint.rotation;
     }
 }
