@@ -14,7 +14,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace SelectionSystem.DesignedCollection
+namespace SLE.Systems.Selection.Collection
 {
     /// <summary>
     /// Collection designed for the Selection System. 
@@ -130,11 +130,21 @@ namespace SelectionSystem.DesignedCollection
             return false;
         }
 
+        public Selectable[] ToArray()
+        {
+            int length = _items.Count;
+
+            Selectable[] result = new Selectable[length];
+
+            _items.CopyTo(result);
+
+            return result;
+        }
+
         public IEnumerator<Selectable> GetEnumerator()
         {
             return _items.GetEnumerator();
         }
-
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

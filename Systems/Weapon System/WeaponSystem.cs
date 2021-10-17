@@ -25,7 +25,7 @@ namespace SLE.Systems.Weapon
 
             _instance = this;
 
-            activeWeapons = new HashSet<Weapon>(GameObject.FindObjectsOfType<Weapon>(false));
+            activeWeapons = new HashSet<Weapon>(GameObject.FindObjectsOfType<Weapon>());
             locked = false;
 
             int length = activeWeapons.Count;

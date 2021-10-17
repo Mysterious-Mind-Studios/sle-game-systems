@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
  *  Source code from Youtube channel: TheScreamingFedora. 
  *  
  *  Extra features and bug fixes by: Erick Luis de Souza.
@@ -11,9 +11,9 @@
 
 
 using UnityEngine;
-using SelectionSystem.Components;
+using SLE.Systems.Selection.Data;
 
-namespace SelectionSystem
+namespace SLE.Systems.Selection
 {
     internal static class Initializer
     {
@@ -21,31 +21,31 @@ namespace SelectionSystem
         {
             var newGOGenerated = GameObject.CreatePrimitive(PrimitiveType.Quad);
 
-            References._rayBlockerCollider = newGOGenerated.GetComponent<MeshCollider>();
-            var mesh = ((MeshCollider)References._rayBlockerCollider).sharedMesh;
+            References.RayBlockerCollider = newGOGenerated.GetComponent<MeshCollider>();
+            var mesh = ((MeshCollider)References.RayBlockerCollider).sharedMesh;
             mesh.Optimize();
 
-            References._rayBlockerCollider.gameObject.name = "Auto-generated: Ray blocker";
-            References._rayBlockerCollider.gameObject.layer = 31;
-            References._rayBlockerCollider.gameObject.isStatic = true;
+            References.RayBlockerCollider.gameObject.name = "Auto-generated: Ray blocker";
+            References.RayBlockerCollider.gameObject.layer = 1 << 31;
+            References.RayBlockerCollider.gameObject.isStatic = true;
 
             //Adjust position and scale in 3D world.
-            References._rayBlockerCollider.transform.position = Vector3.up * Constants._rayBlockerHeight;
-            References._rayBlockerCollider.transform.localScale = new Vector2(100000, 100000);
-            References._rayBlockerCollider.transform.rotation = Quaternion.Euler(Vector3.right * Constants._ninetyDegreesRotation);
+            References.RayBlockerCollider.transform.position = Vector3.down * Constants.RAY_BLOCKER_HEIGHT;
+            References.RayBlockerCollider.transform.localScale = new Vector2(100000, 100000);
+            References.RayBlockerCollider.transform.rotation = Quaternion.Euler(Vector3.right * Constants.NINETY_DEG_ROTATION);
 
-            UnityEngine.Object.Destroy(References._rayBlockerCollider.GetComponent<MeshFilter>());
-            UnityEngine.Object.Destroy(References._rayBlockerCollider.GetComponent<MeshRenderer>());
+            Object.Destroy(References.RayBlockerCollider.GetComponent<MeshFilter>());
+            Object.Destroy(References.RayBlockerCollider.GetComponent<MeshRenderer>());
 
-            var selectionHandlers = GameObject.FindObjectsOfType<SelectionHandler>();
+            var selectionHandlers = Object.FindObjectsOfType<SelectionHandler>();
 
             for (int i = selectionHandlers.Length - 1; i >= 0; i--)
             {
                 // Reset position first. (Safety purposes)
-                selectionHandlers[i].transform.position = Vector3.zero; 
+                selectionHandlers[i].transform.position = Vector3.zero;
 
                 // In order to work make the selection handler(game object) goes to the same height of the ray blocker.
-                selectionHandlers[i].transform.position = Vector3.up * Constants._rayBlockerHeight;
+                selectionHandlers[i].transform.position = Vector3.down * Constants.RAY_BLOCKER_HEIGHT;
             }
         }
     }

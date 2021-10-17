@@ -1,4 +1,5 @@
-﻿/**
+﻿
+/*
  *  Source code from Youtube channel: TheScreamingFedora. 
  *  
  *  Extra features and bug fixes by: Erick Luis de Souza.
@@ -10,9 +11,10 @@
  */
 
 using System;
+
 using UnityEngine;
 
-namespace SelectionSystem.Modules.UIRectGeneration
+namespace SLE.Systems.Selection.Modules.UI
 {
     /// <summary>
     /// Contains values to apply to the 2D selection box generated on the screen.<br/><br/>

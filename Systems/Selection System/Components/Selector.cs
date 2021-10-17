@@ -14,7 +14,7 @@ using System;
 using UnityEngine;
 using SelectionSystem.Modules;
 
-namespace SelectionSystem.Components
+namespace SLE.Systems.Selection
 {
     /// <summary>
     /// The Selectable class can act both as: 
@@ -23,7 +23,7 @@ namespace SelectionSystem.Components
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Collider), typeof(Rigidbody))]
-    public sealed class Selectable : MonoBehaviour, ISelectable
+    public sealed class Selector : MonoBehaviour, ISelectable
     {
         internal static event Action<ISelectable> onDestroy;
 
@@ -34,30 +34,15 @@ namespace SelectionSystem.Components
         [SerializeField]
         private SelectionEvents selectionEvents = new SelectionEvents();
 
-        private ISelectionHighlight hlSelectionComponent;
-
         /// <summary>
         /// Access the selection events for this selectable instance. (Read Only)
         /// </summary>
-        public SelectionEvents SelectionEvents { get => selectionEvents; }
+        public SelectionEvents SelectionEvents => selectionEvents;
 
         /// <summary>
         /// Is this object selected?
         /// </summary>
         public bool isSelected { get; private set; } = false;
-
-        private void Start()
-        {
-            if (hLSelection.TryGetComponent(out ISelectionHighlight selectionHighlight))
-            {
-                hlSelectionComponent = selectionHighlight;
-                Deselect();
-            }
-            else
-            {
-                hLSelection.SetActive(false);
-            }
-        }
 
         private void OnDestroy()
         {
@@ -70,12 +55,10 @@ namespace SelectionSystem.Components
         public void Select()
         {
             isSelected = true;
-            selectionEvents.onSelection.Invoke();
-
-            if (hlSelectionComponent != null)
-                hlSelectionComponent.Activate();
-            else
-                hLSelection.SetActive(true);
+            
+            selectionEvents.onSelection?.Invoke();
+            
+            hLSelection?.SetActive(isSelected);
         }
 
         /// <summary>
@@ -84,12 +67,10 @@ namespace SelectionSystem.Components
         public void Deselect()
         {
             isSelected = false;
-            selectionEvents.onDeselection.Invoke();
-
-            if (hlSelectionComponent != null)
-                hlSelectionComponent.Deactivate();
-            else
-                hLSelection.SetActive(false);
+            
+            selectionEvents.onDeselection?.Invoke();
+            
+            hLSelection?.SetActive(isSelected);
         }
     }
 }

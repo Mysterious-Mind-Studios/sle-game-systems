@@ -12,16 +12,19 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using SelectionSystem.DesignedCollection;
-using SelectionSystem.Modules.MeshGeneration;
-using SelectionSystem.Modules.UIRectGeneration;
 
-namespace SelectionSystem.Components
+namespace SLE.Systems.Selection
 {
+    using SLE.Systems.Selection.Input;
+    using SLE.Systems.Selection.Data;
+    using SLE.Systems.Selection.Modules.UI;
+    using SLE.Systems.Selection.Modules.MeshGeneration;
+    using SLE.Systems.Selection.Collection;
+
     /// <summary>
     /// The <see cref="SelectionHandler"/> handles the major part of the entire <seealso cref="SelectionSystem">System</seealso>. <br/>
     /// In order to this to recoginize any selectable object, it's needed to implement <seealso cref="ISelectable"/> interface.
-    /// <para>The <seealso cref="SelectionSystem">System</seealso> already brings to you a ready-to-use <seealso cref="Selectable">Component</seealso> with all functionalities needed implemented. <br/>
+    /// <para>The <seealso cref="SelectionSystem">System</seealso> already brings to you a ready-to-use <seealso cref="Selector">Component</seealso> with all functionalities needed implemented. <br/>
     /// But it does not implements <seealso cref="ISelectable"/> for flexibility reason. </para>
     /// </summary>
     [DisallowMultipleComponent]
@@ -34,22 +37,22 @@ namespace SelectionSystem.Components
 
         [Space]
         [SerializeField]
-        private RectangleSettings _uiRectSettings = new RectangleSettings();
+        private RectangleSettings _uiRectSettings;
 
-        private Vector3 currentCursorPosition = Vector3.zero;
+        private Predicate<ISelectable> _multiSelectionRule;
 
+        private WaitForSeconds _shortDelay = new WaitForSeconds(0.1f);
+
+        [HideInInspector]
         private MeshCollider _meshCollider;
-
-        private Predicate<ISelectable> _multiSelectionRule = null;
-
-        private WaitForSeconds shortDelay = new WaitForSeconds(0.1f);
-        
-        [NonSerialized]
-        private Vector3 onClickCursorPosition;
-        [NonSerialized]
-        private bool boxSelecting = false;
-        [NonSerialized]
-        private bool shiftWasPressedLastSelection = false;
+        [HideInInspector]
+        private Vector3 _cursorPosition;
+        [HideInInspector]
+        private Vector3 _lastClickedCursorPosition;
+        [HideInInspector]
+        private bool    _dragSelectionPerformed;
+        [HideInInspector]
+        private bool    _shiftIsDown;
 
         /// <summary>
         /// The camera used in selection operations.
@@ -79,14 +82,16 @@ namespace SelectionSystem.Components
             if (!_meshCollider)
                 _meshCollider = GetComponent<MeshCollider>();
 
+            Selector.onDestroy += AutoRemove;
+
             Initializer.Run();
         }
 
         private void OnGUI()
         {
-            if (boxSelecting)
+            if (_dragSelectionPerformed)
             {
-                var uiRectangle = RectangleGenerator.GetScreenRect(onClickCursorPosition, currentCursorPosition);
+                var uiRectangle = RectangleGenerator.GetScreenRect(_lastClickedCursorPosition, _cursorPosition);
 
                 RectangleGenerator.DrawScreenRect(uiRectangle, _uiRectSettings.rectColor);
                 RectangleGenerator.DrawScreenRectBorder(uiRectangle, _uiRectSettings.borderThickness, _uiRectSettings.borderColor);
@@ -111,7 +116,7 @@ namespace SelectionSystem.Components
 
         private void Update()
         {
-            currentCursorPosition = InputHelper.GetCursorPosition();
+            _cursorPosition = InputHelper.GetCursorPosition();
 
             /* 
 
@@ -121,13 +126,15 @@ namespace SelectionSystem.Components
 
             */
 
-            shiftWasPressedLastSelection = InputHelper.ShiftKeyIsPressed();
+            _shiftIsDown = InputHelper.ShiftKeyIsPressed();
+
+            ProcessSelections();
         }
 
-        private IEnumerator DisableMeshCollider() 
+        private IEnumerator DisableMeshCollider()
         {
-            yield return shortDelay;
-            _meshCollider.enabled = false; 
+            yield return _shortDelay;
+            _meshCollider.enabled = false;
         }
 
         private void DeselectAll()
@@ -140,7 +147,7 @@ namespace SelectionSystem.Components
             if (selectable == null)
                 return;
 
-            if (shiftWasPressedLastSelection)
+            if (_shiftIsDown)
             {
                 if (_multiSelectionRule != null)
                 {
@@ -150,7 +157,6 @@ namespace SelectionSystem.Components
             }
 
             currentSelection.Add(selectable);
-            Selectable.onDestroy += AutoRemove;
         }
 
         private void AutoRemove(ISelectable obj)
@@ -158,45 +164,42 @@ namespace SelectionSystem.Components
             currentSelection.Remove(obj);
         }
 
-        private bool CheckIfIsMultiSelecting()
-        {
-            return (onClickCursorPosition - currentCursorPosition).magnitude > 0;
-        }
-
         private void OnLeftMousePressed()
         {
-            onClickCursorPosition = currentCursorPosition;
+            _lastClickedCursorPosition = _cursorPosition;
         }
 
         private void OnLeftMouseHeld()
         {
-            boxSelecting = CheckIfIsMultiSelecting();
+            _dragSelectionPerformed = (_lastClickedCursorPosition - _cursorPosition).sqrMagnitude > 0;
         }
 
         private void OnLeftMouseReleased()
         {
-            if (!shiftWasPressedLastSelection)
+            if (!_shiftIsDown)
                 DeselectAll();
 
-            if (boxSelecting)                       // Multi-selection
+            // Multi-selection
+            if (_dragSelectionPerformed)
             {
-                if (SelectionBoxGenerator.Generate(onClickCursorPosition, currentCursorPosition, camera, ref _meshCollider))
+                if (SelectionBoxGenerator.Generate(_lastClickedCursorPosition, _cursorPosition, camera, ref _meshCollider))
                     StartCoroutine(DisableMeshCollider());
 
-                // Check the multiple selection logic on the OnTriggerEnter(Collider) Method.
+                // Check the multiple selection logic in the 'OnTriggerEnter(Collider)' method.
             }
-            else                                    // Single-selection
+            // Single-selection
+            else
             {
-                Ray ray = camera.ScreenPointToRay(currentCursorPosition);
+                Ray ray = camera.ScreenPointToRay(_cursorPosition);
 
-                if (!Physics.Raycast(ray, out var hit, Constants.maxRayTravelDistance)) return;
+                if (!Physics.Raycast(ray, out var hit, Constants.MAX_RAY_TRAVEL_DISTANCE)) return;
 
                 if (!hit.collider.TryGetComponent(out ISelectable selectable)) return;
 
                 HandleSingleSelection(selectable);
             }
 
-            boxSelecting = false;
+            _dragSelectionPerformed = false;
         }
 
         /// <summary>
@@ -208,13 +211,11 @@ namespace SelectionSystem.Components
             if (InputHelper.LeftMouseButtonWasPressed())
                 OnLeftMousePressed();
 
-            if (InputHelper.LeftMouseButtonIsHold())
+            if (InputHelper.LeftMouseButtonIsDown())
                 OnLeftMouseHeld();
 
             if (InputHelper.LeftMouseButtonWasReleased())
                 OnLeftMouseReleased();
-
-            print(currentSelection.Count);
         }
 
         /// <summary>
@@ -224,9 +225,9 @@ namespace SelectionSystem.Components
         /// <param name="condition"> 
         /// The specified method that will be invoked on <see cref="ISelectable">Selectable</see> types to verify if it can be selected or not.
         /// </param>
-        public void DefineMultiSelectionRule(Predicate<ISelectable> condition = null)
+        public void DefineMultiSelectionRule(Predicate<ISelectable> condition)
         {
-            _multiSelectionRule = condition == null ? null : condition;
+            _multiSelectionRule = condition;
         }
     }
 }

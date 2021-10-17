@@ -10,9 +10,10 @@
  */
 
 
+using SLE.Systems.Selection.Data;
 using UnityEngine;
 
-namespace SelectionSystem.Modules.MeshGeneration
+namespace SLE.Systems.Selection.Modules.MeshGeneration
 {
     /// <summary>
     /// Handles the creation of the Mesh to the Mesh Collider compoenent that detects which selectable objects are inside of the 2d rectangle box (Screen). 
@@ -38,10 +39,10 @@ namespace SelectionSystem.Modules.MeshGeneration
         /// </returns>
         public static bool Generate(Vector3 initialPosition, Vector3 finalPosition, Camera mainCamera, ref MeshCollider attachedMeshCollider)
         {
-            if (Mathf.Abs(initialPosition.x - finalPosition.x) < Constants._minAcceptableVertexDistance ||
-                Mathf.Abs(initialPosition.y - finalPosition.y) < Constants._minAcceptableVertexDistance)
+            if (Mathf.Abs(initialPosition.x - finalPosition.x) < Constants.MIN_ACCEPTABLE_VERTEX_DISTANCE ||
+                Mathf.Abs(initialPosition.y - finalPosition.y) < Constants.MIN_ACCEPTABLE_VERTEX_DISTANCE)
             {
-                return false;   // Returns out of the function if the points are too close from each other.
+                return false;
             }
 
             Vector3[] verticies = new Vector3[4];
@@ -53,10 +54,10 @@ namespace SelectionSystem.Modules.MeshGeneration
             {
                 Ray ray = mainCamera.ScreenPointToRay(corner);
 
-                if (Physics.Raycast(ray, out var hitVariable, Constants.maxRayTravelDistance, Constants._selectionBoxLayer))
+                if (Physics.Raycast(ray, out var hitVariable, Constants.MAX_RAY_TRAVEL_DISTANCE, Constants.SELECTION_BOX_LAYER))
                 {
                     verticies[i] = new Vector3(hitVariable.point.x, 0, hitVariable.point.z);
-                    meshBorderLines[i] = ray.origin  - hitVariable.point;
+                    meshBorderLines[i] = ray.origin - hitVariable.point;
                     Debug.DrawLine(mainCamera.ScreenToWorldPoint(corner), hitVariable.point, Color.green, 0.2f);
                 }
                 else
@@ -68,14 +69,12 @@ namespace SelectionSystem.Modules.MeshGeneration
                 i++;
             }
 
-            Mesh selectionBoxMesh = MeshGenerator.GenerateMesh(verticies, meshBorderLines);
+            attachedMeshCollider.sharedMesh = MeshGenerator.GenerateMesh(verticies, meshBorderLines);
+            attachedMeshCollider.enabled    = true;
+            attachedMeshCollider.convex     = true;
+            attachedMeshCollider.isTrigger  = true;
 
-            attachedMeshCollider.sharedMesh = selectionBoxMesh;
-            attachedMeshCollider.enabled = true;
-            attachedMeshCollider.convex = true;
-            attachedMeshCollider.isTrigger = true;
-
-            return attachedMeshCollider.enabled;
+            return true;
         }
     }
 }

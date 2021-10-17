@@ -19,8 +19,6 @@ namespace SLE.Systems.Health.Jobs
 
         public void Execute(int index, TransformAccess barFillTransform)
         {
-            if (!barFillTransform.isValid) return;
-
             barFillTransform.localScale = new Vector3(healthDataArray[index].normalized, barFillTransform.localScale.y, barFillTransform.localScale.z);
         }
     }

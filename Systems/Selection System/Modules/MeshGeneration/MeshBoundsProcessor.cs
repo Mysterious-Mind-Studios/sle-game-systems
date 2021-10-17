@@ -1,4 +1,5 @@
-﻿/**
+﻿
+/*
  *  Source code from Youtube channel: TheScreamingFedora. 
  *  
  *  Extra features and bug fixes by: Erick Luis de Souza.
@@ -9,10 +10,9 @@
  * 
  */
 
-
 using UnityEngine;
 
-namespace SelectionSystem.Modules.MeshGeneration
+namespace SLE.Systems.Selection.Modules.MeshGeneration
 {
     internal static class MeshBoundsProcessor
     {

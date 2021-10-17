@@ -1,4 +1,5 @@
-﻿/**
+﻿
+/*
  *  Source code from Youtube channel: TheScreamingFedora. 
  *  
  *  Extra features and bug fixes by: Erick Luis de Souza.
@@ -9,10 +10,9 @@
  * 
  */
 
-
 using UnityEngine;
 
-namespace SelectionSystem.Modules.UIRectGeneration
+namespace SLE.Systems.Selection.Modules.UI
 {
     /// <summary>
     /// Contains functions to draw the UI's rectangle of the selection box on the screen.

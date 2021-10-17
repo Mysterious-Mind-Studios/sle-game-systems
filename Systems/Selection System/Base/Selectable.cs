@@ -12,7 +12,7 @@
 
 using UnityEngine;
 
-namespace SelectionSystem.Base
+namespace SLE.Systems.Selection
 {
     /// <summary>
     /// The Selectable class can act both as: 

@@ -11,10 +11,10 @@
 
 using UnityEngine;
 
-namespace SelectionSystem
+namespace SLE.Systems.Selection
 {
     internal static class References
     {
-        internal static Collider _rayBlockerCollider = null;
+        internal static Collider RayBlockerCollider = null;
     }
 }

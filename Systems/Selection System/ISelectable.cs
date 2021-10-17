@@ -1,17 +1,14 @@
-﻿/**
+﻿/*
  *  Source code from Youtube channel: TheScreamingFedora. 
  *  
  *  Extra features and bug fixes by: Erick Luis de Souza.
  *  Code by : Erick Luis de Souza.
  *  
- *  email me at: erickluiss@gmail.com 
- *  for aditional information.
+ *  email me at: erickluiss@gmail.com for aditional information.
  * 
  */
 
-using SelectionSystem.Components;
-
-namespace SelectionSystem
+namespace SLE.Systems.Selection
 {
     /// <summary>
     /// This interface makes the <see cref="SelectionHandler"/> recognizes any object as a selectable one. <br/>

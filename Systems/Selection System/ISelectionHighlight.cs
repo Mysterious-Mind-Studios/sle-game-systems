@@ -12,7 +12,7 @@
 
 using UnityEngine;
 
-namespace SelectionSystem
+namespace SLE.Systems.Selection
 {
     /// <summary>
     /// Interface to access the main properties of the selection highlight of the objects.

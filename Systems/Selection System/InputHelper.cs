@@ -19,7 +19,7 @@ using UnityEngine.InputSystem;
 #endif
 using UnityEngine;
 
-namespace SelectionSystem
+namespace SLE.Systems.Selection.Input
 {
     internal static class InputHelper
     {
@@ -32,7 +32,7 @@ namespace SelectionSystem
 #endif
         }
 
-        internal static bool LeftMouseButtonIsHold()
+        internal static bool LeftMouseButtonIsDown()
         {
 #if USING_NEW_INPUT_SYSTEM
             return Mouse.current.leftButton.isPressed;
