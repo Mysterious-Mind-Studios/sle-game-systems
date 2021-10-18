@@ -32,6 +32,8 @@ namespace SLE.Systems.Movement
             Movement.OnComponentDisable += OnMovementDisableUpdateData;
             
             _cacheMovements     = new Movement[length];
+            _cacheMovementData  = new MovementData[length];
+
             moversTransformList = new TransformAccessArray(length);
 
             activeMovers.CopyTo(_cacheMovements);
@@ -134,7 +136,7 @@ namespace SLE.Systems.Movement
             int index = mover._id;
             ref MovementData moverData = ref _cacheMovementData[index];
 
-            moverData.direction = mover.direction;
+            moverData = new MovementData(mover);
         }
         private void OnMovementDisableUpdateData(Movement mover)
         {

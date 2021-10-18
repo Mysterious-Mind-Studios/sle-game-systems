@@ -1,6 +1,7 @@
 ﻿
 
 using System;
+using System.Reflection;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -15,8 +16,15 @@ namespace SLE.Systems.Weapon
 
     public unsafe class WeaponSystem : SystemBase
     {
+        static WeaponSystem()
+        {
+            onFireMethod = typeof(Weapon).GetMethod("OnFire", BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.NonPublic);
+        }
+
         static WeaponSystem _instance = null;
         public static WeaponSystem current => _instance;
+
+        static MethodInfo onFireMethod;
 
         public WeaponSystem()
         {
@@ -256,17 +264,17 @@ namespace SLE.Systems.Weapon
 
                     for (i = 0; i < length; i++)
                     {
-                        ref WeaponData data = ref _cacheWeaponData[i];
+                        Weapon weapon = _cacheWeapons[i];
 
-                        if (data.hasFired)
-                            _cacheWeapons[i].SendMessage("OnFire");
+                        if (weaponDataPtr[i].hasFired)
+                            onFireMethod.Invoke(weapon, null);
 
-                        if (data.state != WeaponState.Ready)
+                        if (weaponDataPtr[i].state != WeaponState.Ready)
                             shouldRunUpdate = true;
 
-                        _cacheWeapons[i]._ammo = weaponAmmoPtr[i];
+                        weapon._ammo = weaponAmmoPtr[i];
 
-                        data.hasFired = false;
+                        weaponDataPtr[i].hasFired = false;
                     }
                 }
             }

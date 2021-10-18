@@ -27,29 +27,26 @@ namespace SLE.Systems.ObjectPooling
             {
                 PoolObject poolObj = Instantiate(poolObject, transform);
 
-                poolObj.SetPool(this);
+                poolObj.owner = this;
                 poolObj.gameObject.SetActive(false);
 
                 poolQueue.Enqueue(poolObj);
             }
         }
-
         private void OnDestroy()
         {
             for (int i = 0; i < poolQueue.Count; i++)
             {
                 PoolObject po = poolQueue.Dequeue();
-
-                po.SetPool(null);
+                Destroy(po);
             }
         }
 
         public PoolObject GetObject()
         {
             PoolObject item = poolQueue.Dequeue();
-            poolQueue.Enqueue(item);
 
-            item.OnObjectUse();
+            poolQueue.Enqueue(item);
 
             return item;
         }
