@@ -45,6 +45,10 @@ namespace SLE.Systems.Weapon
         public Transform firePoint => _firePoint;
         public Transform projectilePrefab => _weaponInfo.projectile;
 
+        protected WeaponInfo GetInfo()
+        {
+            return _weaponInfo;
+        }
         protected abstract void OnFire();
 
         public void Fire()

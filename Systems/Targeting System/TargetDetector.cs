@@ -15,8 +15,6 @@ namespace SLE.Systems.Targeting
     [DisallowMultipleComponent]
     public sealed class TargetDetector : SLEComponent<TargetDetector>
     {
-        internal static event OnObjectChange<TargetDetector> OnFixedTargetSet;
-
 #if UNDER_DEVELOPMENT
         [Space]
         [SerializeField]
@@ -45,17 +43,9 @@ namespace SLE.Systems.Targeting
         public Targetable target
         {
             get => _target;
-            set
-            {
-                if (value)
-                {
-                    _target = value;
-                    OnFixedTargetSet(this);
-                }
-            }
+            set => _target = value;
         }
 
-#if UNDER_DEVELOPMENT
 #if UNITY_EDITOR
 
         [Space]
@@ -66,7 +56,7 @@ namespace SLE.Systems.Targeting
 
         private void OnDrawGizmos()
         {
-            if (!drawFOV)      return;
+            if (!drawFOV)       return;
             if (!_detectorInfo) return;
 
             Gizmos.color  = Color.white;
@@ -81,7 +71,6 @@ namespace SLE.Systems.Targeting
             Handles.DrawLine(_fovPoint, _target.aimPoint.position);
         }
 
-#endif
 #endif
     }
 }

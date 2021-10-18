@@ -327,17 +327,32 @@ namespace SLE.Systems.Targeting
 
             fixed (DetectorData* detectorDataPtr = &_cacheDetectorData[0])
             {
-                for (i = 0; i < dLength; i++)
+                fixed (TargetData* targetDataPtr = &_cacheTargetableData[0])
                 {
-                    index = detectorDataPtr[i].targetIndex;
+                    TargetDetector detector;
+                    Targetable currentTarget;
 
-                    if (index >= 0 && index < tLength)
+                    for (i = 0; i < dLength; i++)
                     {
-                        _cacheDetectors[i]._target = _cacheTargetables[index];
-                        continue;
-                    }
+                        detector = _cacheDetectors[i];
+                        currentTarget = detector.target;
 
-                    _cacheDetectors[i]._target = null;
+                        index = detectorDataPtr[i].targetIndex;
+
+                        if (index >= 0 && index < tLength)
+                        {
+                            detector._target = _cacheTargetables[index];
+                            continue;
+                        }
+
+                        if (currentTarget)
+                        {
+                            detector._target = targetDataPtr[currentTarget._id].state == TargetState.Valid ? currentTarget : null;
+                            continue;
+                        }
+
+                        detector._target = null;
+                    }
                 }
             }
         }
