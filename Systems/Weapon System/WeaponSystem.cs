@@ -2,6 +2,7 @@
 
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -61,7 +62,9 @@ namespace SLE.Systems.Weapon
                 _cacheWeaponData[i] = new WeaponData(weapon);
 
                 _cacheWeaponAmmo[i] = new Ammo(in weapon._ammoInfo);
+                
                 _cacheWeaponAmmo[i].infinity = weapon._ammo.infinity;
+               
                 _cacheWeaponAmmo[i].AddAmount(weapon._ammo.amount, Source.Ammo);
                 _cacheWeaponAmmo[i].AddAmount(weapon._ammo.magazineAmmo, Source.Magazine);
             }
@@ -104,7 +107,11 @@ namespace SLE.Systems.Weapon
                     _weapon._id = i;
 
                     _cacheWeaponData[i] = new WeaponData(_weapon);
+                    
                     _cacheWeaponAmmo[i] = new Ammo(in _weapon._ammoInfo);
+
+                    _cacheWeaponAmmo[i].infinity = weapon._ammo.infinity;
+
                     _cacheWeaponAmmo[i].AddAmount(_weapon._ammo.amount, Source.Ammo);
                     _cacheWeaponAmmo[i].AddAmount(_weapon._ammo.magazineAmmo, Source.Magazine);
                 }
@@ -137,11 +144,10 @@ namespace SLE.Systems.Weapon
 
                     _cacheWeaponAmmo[i] = new Ammo(in _weapon._ammoInfo);
 
-                    ref Ammo ammo = ref _cacheWeaponAmmo[i];
+                    _cacheWeaponAmmo[i].infinity = _weapon._ammo.infinity;
 
-                    ammo.infinity = _weapon._ammo.infinity;
-                    ammo.AddAmount(_weapon._ammo.amount, Source.Ammo);
-                    ammo.AddAmount(_weapon._ammo.magazineAmmo, Source.Magazine);
+                    _cacheWeaponAmmo[i].AddAmount(_weapon._ammo.amount, Source.Ammo);
+                    _cacheWeaponAmmo[i].AddAmount(_weapon._ammo.magazineAmmo, Source.Magazine);
                 }
             }
 
@@ -255,29 +261,41 @@ namespace SLE.Systems.Weapon
 
             shouldRunUpdate = false;
 
+            int i;
+            int length = _cacheWeapons.Length;
+
             fixed (WeaponData* weaponDataPtr = &_cacheWeaponData[0])
             {
                 fixed (Ammo* weaponAmmoPtr = &_cacheWeaponAmmo[0])
                 {
-                    int i;
-                    int length = _cacheWeapons.Length;
-
+            
                     for (i = 0; i < length; i++)
                     {
                         Weapon weapon = _cacheWeapons[i];
-
+            
                         if (weaponDataPtr[i].hasFired)
                             onFireMethod.Invoke(weapon, null);
-
-                        if (weaponDataPtr[i].state != WeaponState.Ready)
-                            shouldRunUpdate = true;
-
-                        weapon._ammo = weaponAmmoPtr[i];
-
-                        weaponDataPtr[i].hasFired = false;
                     }
                 }
             }
+
+            Parallel.For(0, length, (i) =>
+            {
+                fixed (WeaponData* weaponDataPtr = &_cacheWeaponData[i])
+                {
+                    fixed (Ammo* weaponAmmoPtr = &_cacheWeaponAmmo[i])
+                    {
+                        Weapon weapon = _cacheWeapons[i];
+
+                        if (weaponDataPtr->state != WeaponState.Ready)
+                            shouldRunUpdate = true;
+
+                        weapon._ammo = *weaponAmmoPtr;
+
+                        weaponDataPtr->hasFired = false;
+                    }
+                }
+            });
         }
     }
 }

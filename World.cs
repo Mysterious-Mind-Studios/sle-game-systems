@@ -28,6 +28,11 @@ namespace SLE
 		private SystemBase[] _systems = null;
         private NativeArray<JobHandle> jobHandleList;
 
+        [SerializeField]
+        private AudioSource sfxSource;
+
+        public ref readonly AudioSource SfxAudioSource => ref sfxSource;
+
         private SystemBase[] InitSystems()
         {
             List<SystemBase> systemList = new List<SystemBase>();

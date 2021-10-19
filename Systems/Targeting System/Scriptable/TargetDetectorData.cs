@@ -11,8 +11,5 @@ namespace SLE.Systems.Targeting.Data
 
         [Range(0.0f, float.PositiveInfinity)]
         public float refreshRate = 0.1f;
-
-        [Space]
-        public LayerMask targetLayers;
     }
 }

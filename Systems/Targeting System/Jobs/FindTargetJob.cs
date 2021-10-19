@@ -47,34 +47,38 @@ namespace SLE.Systems.Targeting.Jobs
                             {
                                 ref readonly TargetData target = ref targetData[i];
 
-                                if (target.state == TargetState.Invalid)
-                                    continue;
-
-                                if (target.position.Equals(detector.position))
-                                    continue;
-
-                                if (((1 << target.layer) & detector.targetLayer) == 0)
-                                    continue;
-
-                                float sqrdDistanceToTarget = math.distancesq(detectorPos, target.position);
-
-                                if (sqrdDistanceToTarget == 1 ||
-                                    sqrdDistanceToTarget > sqrdRadius)
-                                    continue;
-
-                                if (detector.targetIndex == -1)
+                                switch (target.state)
                                 {
-                                    detector.targetIndex = i;
-                                    closestTargetPos = target.position;
-                                    continue;
-                                }
+                                    case TargetState.Valid:
+                                        {
+                                            if (target.position.Equals(detector.position))
+                                                continue;
 
-                                float sqrdDistanceToClosest = math.distancesq(detectorPos, closestTargetPos);
+                                            if (((1 << target.layer) & detector.targetLayer) == 0)
+                                                continue;
 
-                                if (sqrdDistanceToTarget < sqrdDistanceToClosest)
-                                {
-                                    detector.targetIndex = i;
-                                    closestTargetPos = target.position;
+                                            float sqrdDistanceToTarget = math.distancesq(detectorPos, target.position);
+
+                                            if (sqrdDistanceToTarget == 1 ||
+                                                sqrdDistanceToTarget > sqrdRadius)
+                                                continue;
+
+                                            if (detector.targetIndex == -1)
+                                            {
+                                                detector.targetIndex = i;
+                                                closestTargetPos = target.position;
+                                                continue;
+                                            }
+
+                                            float sqrdDistanceToClosest = math.distancesq(detectorPos, closestTargetPos);
+
+                                            if (sqrdDistanceToTarget < sqrdDistanceToClosest)
+                                            {
+                                                detector.targetIndex = i;
+                                                closestTargetPos = target.position;
+                                            }
+                                        }
+                                        continue;
                                 }
                             }
                         }

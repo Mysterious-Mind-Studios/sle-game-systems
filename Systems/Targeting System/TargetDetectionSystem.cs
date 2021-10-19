@@ -283,29 +283,25 @@ namespace SLE.Systems.Targeting
                                 case DetectorState.Active:
                                     detectorDataPtr[i].position = _cacheDetectors[i]._fovOrigin.position;
                                     break;
-
-                                case DetectorState.HasFixedTarget:
-                                    {
-                                        if (detectorDataPtr[i].state == DetectorState.HasFixedTarget)
-                                        {
-                                            if (_cacheDetectors[i]._target)
-                                                continue;
-
-                                            detectorDataPtr[i].state = DetectorState.Active;
-                                        }
-                                    }
-                                    break;
                             }
                         }
 
                         if (t++ < tLength)
+                        {
+                            if(!_cacheTargetables[i].gameObject.activeSelf)
+                            {
+                                _cacheTargetableData[i].state = TargetState.Invalid;
+                                continue;
+                            }
+
                             targetDataPtr[i].position = _cacheTargetables[i].aimPoint.position;
+                        }
                     }
 
                     FindTargetJob findTargetJob = new FindTargetJob
                     {
-                        detectorData = detectorDataPtr,
-                        targetData = targetDataPtr,
+                        detectorData     = detectorDataPtr,
+                        targetData       = targetDataPtr,
                         targetDataLength = tLength,
                         time = time
                     };
@@ -330,28 +326,32 @@ namespace SLE.Systems.Targeting
                 fixed (TargetData* targetDataPtr = &_cacheTargetableData[0])
                 {
                     TargetDetector detector;
-                    Targetable currentTarget;
+                    Targetable     target;
 
                     for (i = 0; i < dLength; i++)
                     {
                         detector = _cacheDetectors[i];
-                        currentTarget = detector.target;
+                        target   = detector.target;
 
                         index = detectorDataPtr[i].targetIndex;
 
-                        if (index >= 0 && index < tLength)
+                        detector.target = null;
+
+                        if (index >= 0 && 
+                            index < tLength)
                         {
                             detector._target = _cacheTargetables[index];
                             continue;
                         }
 
-                        if (currentTarget)
+                        if(target && 
+                           target.gameObject.activeInHierarchy)
                         {
-                            detector._target = targetDataPtr[currentTarget._id].state == TargetState.Valid ? currentTarget : null;
-                            continue;
-                        }
+                            if (target.gameObject == detector.gameObject)
+                                target = null;
 
-                        detector._target = null;
+                            detector._target = target;
+                        }
                     }
                 }
             }

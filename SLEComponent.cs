@@ -43,7 +43,11 @@ namespace SLE
         }
 
         public override int GetHashCode() => base.GetHashCode();
-        public override bool Equals(object other) => base.Equals(other);
+        public override bool Equals(object other)
+        {
+            return other is SLEComponent<T> sleComponent && 
+                   sleComponent == this;
+        }
 
         public static bool operator ==(SLEComponent<T> lhs, SLEComponent<T> rhs)
         {

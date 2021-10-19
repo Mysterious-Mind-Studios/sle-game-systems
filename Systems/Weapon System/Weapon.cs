@@ -35,7 +35,6 @@ namespace SLE.Systems.Weapon
 #endif
         internal Transform _firePoint;
 
-
         public float damage        => _weaponInfo.damage;
         public float fireRate      => _weaponInfo.fireRate;
         public float reloadTime    => _weaponInfo.reloadTime;

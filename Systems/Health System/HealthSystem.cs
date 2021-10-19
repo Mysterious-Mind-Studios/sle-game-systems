@@ -177,6 +177,8 @@ namespace SLE.Systems.Health
                             if (healthBar)
                                 ToggleHealthBars -= healthBar.attachedPrefab.gameObject.SetActive;
 
+                            healthBar.enabled = false;
+                            health.enabled    = false;
                             health.gameObject.SetActive(false);
                         }
                         break;
