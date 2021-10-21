@@ -8,6 +8,8 @@
  * 
  */
 
+using System;
+
 namespace SLE.Systems.Selection
 {
     /// <summary>

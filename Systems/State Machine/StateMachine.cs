@@ -1,35 +1,34 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
+
 using UnityEngine;
 
-namespace StateMachineSystem
+namespace SLE.Systems.StateMachine
 {
     [DisallowMultipleComponent]
-    public abstract class StateMachine : MonoBehaviour, ISerializationCallbackReceiver
+    public class StateMachine : MonoBehaviour,
+#if UNITY_EDITOR
+        ISerializationCallbackReceiver
+#endif
     {
-        private const string stateTooltip = "Current behaviour of the State Machine. (Read Only)";
-
-        [Space]
-        [Tooltip(stateTooltip)]
-        [SerializeField]
-        private string status;
-
+#if UNITY_EDITOR
         [Space]
         [SerializeField]
+#endif
         private State _defaultState;
 
+#if UNITY_EDITOR
         [Space]
         [SerializeField]
-        private List<State> _statesList;
+        private List<State> _statesList = new List<State>();
 
-        [Space]
-        [SerializeField]
-        private StateRefreshRateQuality _stateUpdateQuality;
+        private readonly HashSet<State> machineStates = new HashSet<State>();
+#else
+        private readonly HashSet<State> machineStates = new HashSet<State>();
+#endif
 
-        private readonly HashSet<State> statesList = new HashSet<State>();
-
-        [NonSerialized]
-        private State _currentState;
+        private State _state;
 
         public State defaultState
         {
@@ -38,77 +37,57 @@ namespace StateMachineSystem
                 return _defaultState;
             }
         }
-
         public State currentState
         {
             get
             {
-                return _currentState;
+                return _state;
             }
-        }
-
-        public StateRefreshRateQuality stateUpdateQuality
-        {
-            get => _stateUpdateQuality;
         }
 
         private void Start()
         {
-            foreach (var state in GetComponents<State>())
+            State[] states = GetComponents<State>();
+
+            foreach (var state in states)
             {
-                if (statesList.Add(state))
-                    state.Initialize(this);
+                machineStates.Add(state);
+                
+                state.Initialize(this);
             }
 
-            SetState(defaultState);
+            _state = _defaultState;
+            _state.StateEnter();
+        }
+        private void Update()
+        {
+            _state.OnStateUpdate();
         }
 
-        /// <summary>
-        /// Switch the currentState to a specific State object
-        /// </summary>
-        /// <param name="state">
-        /// The state object to set as the currentState</param>
-        /// <returns>Whether the state was changed</returns>
         public bool SetState(State state)
         {
             bool success = false;
 
-            if (state)
+            if (machineStates.Contains(state))
             {
-                if (state != _currentState)
-                {
-                    State oldState = _currentState;
-                    _currentState = state;
+                _state.StateExit();
 
-                    if (oldState)
-                        oldState.StateExit();
+                _state = state;
 
-                    _currentState.StateEnter();
+                _state.StateEnter();
 
-                    status = _currentState.ToString();
-
-                    success = true;
-                }
-                else
-                    return true;
+                success = true;
             }
 
             return success;
         }
-
-        /// <summary>
-        /// Switch the currentState to a State of a the given type.
-        /// </summary>
-        /// <typeparam name="StateType">
-        /// The type of state to use for the currentState</typeparam>
-        /// <returns>Whether the state was changed</returns>
         public bool SetState<StateType>() where StateType : State
         {
-            bool success;
+            bool success = false;
 
             //if the state can be found in the list of states 
             //already created, switch to the existing version
-            foreach (State state in statesList)
+            foreach (State state in machineStates)
             {
                 if (state is StateType)
                 {
@@ -122,53 +101,36 @@ namespace StateMachineSystem
             if (TryGetComponent(out State stateComponent))
             {
                 stateComponent.Initialize(this);
-                statesList.Add(stateComponent);
+                machineStates.Add(stateComponent);
                 success = SetState(stateComponent);
                 return success;
             }
 
-            //if it is not on the gameobject,
-            //make a new instance
-            State newState = gameObject.AddComponent<StateType>();
-            newState.Initialize(this);
-            statesList.Add(newState);
-            success = SetState(newState);
-
             return success;
         }
 
-        /// <summary>
-        /// First set the target State on the StateMachine, and them return it.
-        /// </summary>
-        /// <typeparam name="StateType"> The State target type. </typeparam>
-        /// <returns> Whether the newly set State. </returns>
-        public StateType SetAndGetState<StateType>() where StateType : State
+        public T GetState<T>() where T : State
         {
-            SetState<StateType>();
-            return GetState<StateType>();
-        }
-
-        /// <summary>
-        /// Try to get the target State whether on the StateMachine's List or added Component.
-        /// </summary>
-        /// <typeparam name="State_T">
-        /// The type of the State target to look for in the StateMachine. </typeparam>
-        /// <returns>Whether the existing State on the StateMachine. </returns>     
-        public StateType GetState<StateType>() where StateType : State
-        {
-            foreach (var state in statesList)
+            foreach (var state in machineStates)
             {
-                if (state is StateType)
-                    return state as StateType;
+                if (state is T)
+                    return (T)state;
             }
-            TryGetComponent<StateType>(out var stateComponent);
-            return stateComponent;
+           
+            return null;
         }
 
+#if UNITY_EDITOR
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {
-            _statesList = new List<State>(statesList);
+            _statesList.Clear();
+            _statesList.AddRange(machineStates);
         }
-        void ISerializationCallbackReceiver.OnAfterDeserialize() { }
+        void ISerializationCallbackReceiver.OnAfterDeserialize()
+        {
+            machineStates.Clear();
+            machineStates.SymmetricExceptWith(_statesList);
+        }
+#endif
     }
 }

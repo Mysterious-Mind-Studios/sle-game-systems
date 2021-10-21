@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
  *  Source code from Youtube channel: TheScreamingFedora. 
  *  
  *  Extra features and bug fixes by: Erick Luis de Souza.
@@ -9,6 +9,7 @@
  * 
  */
 
+using System;
 
 using UnityEngine;
 
@@ -25,6 +26,13 @@ namespace SLE.Systems.Selection
     [RequireComponent(typeof(Collider), typeof(Rigidbody))]
     public abstract class Selectable : MonoBehaviour, ISelectable
     {
+        internal static event Action<ISelectable> onDestroy;
+
+        private void OnDestroy()
+        {
+            onDestroy?.Invoke(this);
+        }
+
         /// <inheritdoc/>
         public abstract bool isSelected
         {

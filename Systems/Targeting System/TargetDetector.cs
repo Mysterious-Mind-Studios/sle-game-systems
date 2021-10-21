@@ -1,10 +1,8 @@
 
 using UnityEngine;
 
-#if UNDER_DEVELOPMENT
 #if UNITY_EDITOR
 using UnityEditor;
-#endif
 #endif
 
 namespace SLE.Systems.Targeting

@@ -54,7 +54,7 @@ namespace SLE.Systems.Selection.Modules.MeshGeneration
             {
                 Ray ray = mainCamera.ScreenPointToRay(corner);
 
-                if (Physics.Raycast(ray, out var hitVariable, Constants.MAX_RAY_TRAVEL_DISTANCE, Constants.SELECTION_BOX_LAYER))
+                if (Physics.Raycast(ray, out var hitVariable, Constants.MAX_RAY_TRAVEL_DISTANCE, 1 << Constants.SELECTION_BOX_LAYER))
                 {
                     verticies[i] = new Vector3(hitVariable.point.x, 0, hitVariable.point.z);
                     meshBorderLines[i] = ray.origin - hitVariable.point;

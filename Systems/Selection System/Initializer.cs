@@ -26,7 +26,7 @@ namespace SLE.Systems.Selection
             mesh.Optimize();
 
             References.RayBlockerCollider.gameObject.name = "Auto-generated: Ray blocker";
-            References.RayBlockerCollider.gameObject.layer = 1 << 31;
+            References.RayBlockerCollider.gameObject.layer = 31;
             References.RayBlockerCollider.gameObject.isStatic = true;
 
             //Adjust position and scale in 3D world.
