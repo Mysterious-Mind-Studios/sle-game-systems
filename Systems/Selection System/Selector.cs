@@ -16,23 +16,11 @@ using SelectionSystem.Modules;
 
 namespace SLE.Systems.Selection
 {
-<<<<<<< Updated upstream
-    /// <summary>
-    /// The Selectable class can act both as: 
-    /// <para> - A single Component ready-to-use so your custom class can use it's functionalities. (SelectionSystem.Component) <br/>
-    /// - A base class from which custom classes can Inherit from. (SelectionSystem.Base)</para>
-    /// </summary>
-    [DisallowMultipleComponent]
-    [RequireComponent(typeof(Collider), typeof(Rigidbody))]
-    public sealed class Selector : MonoBehaviour
-    {
-=======
     [DisallowMultipleComponent]
     public sealed class Selector : MonoBehaviour
     {
         internal static event Action<ISelectable> onDestroy;
 
->>>>>>> Stashed changes
         [SerializeField]
         private GameObject hLSelection;
 
@@ -55,15 +43,12 @@ namespace SLE.Systems.Selection
             Deselect();
         }
 
-<<<<<<< Updated upstream
-=======
         private void OnDestroy()
         {
             ISelectable selectable = GetComponent<ISelectable>();
             onDestroy(selectable);
         }
 
->>>>>>> Stashed changes
         /// <summary>
         /// Select this object.
         /// </summary>

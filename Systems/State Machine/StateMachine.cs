@@ -57,19 +57,12 @@ namespace SLE.Systems.StateMachine
             }
 
             _state = _defaultState;
-<<<<<<< Updated upstream
-            _state.StateEnter();
-        }
-        private void Update()
-        {
-            _state.OnStateUpdate();
-=======
+
             _state.EnterState();
         }
         private void Update()
         {
-            _state.UpdateState();
->>>>>>> Stashed changes
+            _state.OnStateUpdate();
         }
 
         public bool SetState(State state)
@@ -78,19 +71,11 @@ namespace SLE.Systems.StateMachine
 
             if (machineStates.Contains(state))
             {
-<<<<<<< Updated upstream
-                _state.StateExit();
-
-                _state = state;
-
-                _state.StateEnter();
-=======
                 _state.ExitState();
 
                 _state = state;
 
                 _state.EnterState();
->>>>>>> Stashed changes
 
                 success = true;
             }
@@ -99,11 +84,6 @@ namespace SLE.Systems.StateMachine
         }
         public bool SetState<StateType>() where StateType : State
         {
-<<<<<<< Updated upstream
-            bool success = false;
-
-=======
->>>>>>> Stashed changes
             //if the state can be found in the list of states 
             //already created, switch to the existing version
             foreach (State state in machineStates)
@@ -120,19 +100,11 @@ namespace SLE.Systems.StateMachine
             {
                 stateComponent.Initialize(this);
                 machineStates.Add(stateComponent);
-<<<<<<< Updated upstream
-                success = SetState(stateComponent);
-                return success;
-            }
-
-            return success;
-=======
 
                 return SetState(stateComponent);
             }
 
             return false;
->>>>>>> Stashed changes
         }
 
         public T GetState<T>() where T : State
