@@ -82,7 +82,11 @@ namespace SLE.Systems.Selection
             if (!_meshCollider)
                 _meshCollider = GetComponent<MeshCollider>();
 
+<<<<<<< Updated upstream
             Selectable.onDestroy += AutoRemove;
+=======
+            Selector.onDestroy += AutoRemove;
+>>>>>>> Stashed changes
 
             Initializer.Run();
         }
@@ -225,7 +229,11 @@ namespace SLE.Systems.Selection
         /// <param name="condition"> 
         /// The specified method that will be invoked on <see cref="ISelectable">Selectable</see> types to verify if it can be selected or not.
         /// </param>
+<<<<<<< Updated upstream
         public void DefineMultiSelectionRule(Predicate<ISelectable> condition)
+=======
+        public void SetMultiSelectionRule(Predicate<ISelectable> condition)
+>>>>>>> Stashed changes
         {
             _multiSelectionRule = condition;
         }

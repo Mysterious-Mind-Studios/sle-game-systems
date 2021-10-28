@@ -8,6 +8,7 @@ namespace SLE.Systems.StateMachine
     {
         protected StateMachine machine { get; private set; }
 
+<<<<<<< Updated upstream
         #region Unity Callbacks
 
         private void OnEnable()
@@ -17,10 +18,14 @@ namespace SLE.Systems.StateMachine
                 if (machine.currentState != this)
                     enabled = false;
             }
-        }
-
-        private void OnDisable()
+=======
+        protected virtual void OnStateInitialize(StateMachine machine = null) 
         {
+>>>>>>> Stashed changes
+        }
+        protected virtual void OnStateEnter() 
+        {
+<<<<<<< Updated upstream
             if (machine)
             {
                 if (machine.currentState == this)
@@ -35,17 +40,22 @@ namespace SLE.Systems.StateMachine
         }
         protected virtual void OnStateEnter() 
         {
+=======
+>>>>>>> Stashed changes
         }
         protected virtual void OnStateExit() 
         {
         }
 
+<<<<<<< Updated upstream
         public virtual void OnStateUpdate() 
         {
         }
 
         #region Public Methods
 
+=======
+>>>>>>> Stashed changes
         public void Initialize(StateMachine machine)
         {
             this.machine = machine;
@@ -53,12 +63,12 @@ namespace SLE.Systems.StateMachine
             OnStateInitialize(machine);
         }
 
-        public void StateEnter()
+        public void EnterState()
         {
-            enabled = true;
             OnStateEnter();
         }
 
+<<<<<<< Updated upstream
         public void StateExit()
         {
             OnStateExit();
@@ -71,10 +81,27 @@ namespace SLE.Systems.StateMachine
         public override string ToString()
         {
             return GetType().Name;
+=======
+        public void ExitState()
+        {
+            OnStateExit();
+        }
+
+        public virtual void UpdateState()
+        {
+>>>>>>> Stashed changes
         }
 
         public static implicit operator bool(State state)
         {
+<<<<<<< Updated upstream
+=======
+            return GetType().Name;
+        }
+
+        public static implicit operator bool(State state)
+        {
+>>>>>>> Stashed changes
             return state != null;
         }
     }
