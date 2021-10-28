@@ -10,6 +10,7 @@ namespace SLE.Systems.Targeting
 {
     using SLE.Systems.Targeting.Data;
     using SLE.Systems.Targeting.Jobs;
+    using Unity.Mathematics;
 
     public unsafe class TargetDetectionSystem : SystemBase
     {
@@ -56,6 +57,7 @@ namespace SLE.Systems.Targeting
                 if(d++ < detLength)
                 {
                     _cacheDetectors[i]._id = i;
+                    _cacheDetectors[i]._hasFixedTarget = _cacheDetectors[i].target;
                     _cacheDetectorData[i] = new DetectorData(in _cacheDetectors[i]);
                 }
 
@@ -337,21 +339,24 @@ namespace SLE.Systems.Targeting
 
                         detector.target = null;
 
-                        if (index >= 0 && 
-                            index < tLength)
+                        if (target && target.gameObject.activeInHierarchy)
                         {
+                            if (detector._hasFixedTarget)
+                            {
+                                detector.target = target;
+                                continue;
+                            }
+
+                            float distToTarget = math.distance(target.position, detector._fovOrigin.position);
+
+                            if(distToTarget < detector._detectorInfo.fovRadius)
+                                detector._target = target;
+                        }
+
+                        if (index >= 0 && index < tLength)
                             detector._target = _cacheTargetables[index];
-                            continue;
-                        }
 
-                        if(target && 
-                           target.gameObject.activeInHierarchy)
-                        {
-                            if (target.gameObject == detector.gameObject)
-                                target = null;
-
-                            detector._target = target;
-                        }
+                        detector._hasFixedTarget = false;
                     }
                 }
             }

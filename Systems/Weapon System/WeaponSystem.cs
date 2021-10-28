@@ -275,6 +275,13 @@ namespace SLE.Systems.Weapon
             
                         if (weaponDataPtr[i].hasFired)
                             onFireMethod.Invoke(weapon, null);
+
+                        /*if (weaponDataPtr[i].state != WeaponState.Ready)
+                            shouldRunUpdate = true;
+
+                        weapon._ammo = weaponAmmoPtr[i];
+
+                        weaponDataPtr[i].hasFired = false;*/
                     }
                 }
             }

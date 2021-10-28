@@ -47,14 +47,14 @@ namespace SLE.Systems.Targeting.Jobs
                             {
                                 ref readonly TargetData target = ref targetData[i];
 
+                                if (target.position.Equals(detector.position))
+                                    continue;
+
                                 switch (target.state)
                                 {
                                     case TargetState.Valid:
                                         {
-                                            if (target.position.Equals(detector.position))
-                                                continue;
-
-                                            if (((1 << target.layer) & detector.targetLayer) == 0)
+                                            if (((1 << target.layer) & detector.detectionLayer) == 0)
                                                 continue;
 
                                             float sqrdDistanceToTarget = math.distancesq(detectorPos, target.position);

@@ -38,10 +38,19 @@ namespace SLE.Systems.Targeting
         [SerializeField]
 #endif
         internal LayerMask _targetLayer;
+        internal bool      _hasFixedTarget;
+
         public Targetable target
         {
             get => _target;
             set => _target = value;
+        }
+
+        public bool SetFixedTarget(in Targetable targetable)
+        {
+            _target = targetable;
+
+            return _hasFixedTarget = _target;
         }
 
 #if UNITY_EDITOR
