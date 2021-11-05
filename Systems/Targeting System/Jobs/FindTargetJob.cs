@@ -28,7 +28,12 @@ namespace SLE.Systems.Targeting.Jobs
         {
             ref DetectorData detector = ref detectorData[index];
 
-            switch(detector.state)
+            float sqrdRadius;
+
+            float3 detectorPos;
+            float3 closestTargetPos = float3.zero;
+
+            switch (detector.state)
             {
                 case DetectorState.Active:
                     {
@@ -37,18 +42,15 @@ namespace SLE.Systems.Targeting.Jobs
                         if (elapsedTime > detector.refreshRate)
                         {
                             detector.lastDetectionTime = time;
-                            detector.targetIndex = -1;
+                            detector.targetIndex       = -1;
 
-                            float3 detectorPos = detector.position;
-                            float3 closestTargetPos = float3.zero;
-                            float sqrdRadius = Utils.Sqrd(detector.detectionRadius);
+                            detectorPos = detector.position;
+
+                            sqrdRadius = Utils.Sqrd(detector.detectionRadius);
 
                             for (int i = 0; i < targetDataLength; i++)
                             {
                                 ref readonly TargetData target = ref targetData[i];
-
-                                if (target.position.Equals(detector.position))
-                                    continue;
 
                                 switch (target.state)
                                 {

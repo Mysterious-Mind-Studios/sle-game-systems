@@ -354,7 +354,15 @@ namespace SLE.Systems.Targeting
                         }
 
                         if (index >= 0 && index < tLength)
-                            detector._target = _cacheTargetables[index];
+                        {
+                            target = _cacheTargetables[index];
+
+                            int targetLayer         = 1 << target.gameObject.layer;
+                            int detectorTargetLayer = detector._targetLayer;
+
+                            if ((targetLayer & detectorTargetLayer) != 0)
+                                detector._target = target;
+                        }
 
                         detector._hasFixedTarget = false;
                     }
