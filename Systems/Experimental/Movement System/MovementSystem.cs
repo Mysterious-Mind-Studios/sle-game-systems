@@ -8,10 +8,11 @@ using UnityEngine.Jobs;
 using Unity.Jobs;
 
 
-namespace SLE.Systems.Movement
+namespace SLE.Systems.Experimental.Movement
 {
-    using SLE.Systems.Movement.Data;
-    using SLE.Systems.Movement.Jobs;
+    using SLE.Systems;
+    using SLE.Systems.Experimental.Movement.Data;
+    using SLE.Systems.Experimental.Movement.Jobs;
 
     public class MovementSystem : SystemBase
     {
@@ -22,7 +23,7 @@ namespace SLE.Systems.Movement
 
         public MovementSystem()
         {
-            activeMovers = new HashSet<Movement>(GameObject.FindObjectsOfType<Movement>());
+            activeMovers = new HashSet<Movement>(UnityEngine.Object.FindObjectsOfType<Movement>());
 
             int length = activeMovers.Count;
 
@@ -30,9 +31,9 @@ namespace SLE.Systems.Movement
             Movement.OnComponentDestroy += OnMovementDestroyUpdateCache;
             Movement.OnComponentEnable  += OnMovementEnableUpdateData;
             Movement.OnComponentDisable += OnMovementDisableUpdateData;
-            
-            _cacheMovements     = new Movement[length];
-            _cacheMovementData  = new MovementData[length];
+
+            _cacheMovements    = new Movement[length];
+            _cacheMovementData = new MovementData[length];
 
             moversTransformList = new TransformAccessArray(length);
 
@@ -56,7 +57,6 @@ namespace SLE.Systems.Movement
             _instance = null;
             Dispose(true);
         }
-
 
         HashSet<Movement> activeMovers;
 
@@ -148,17 +148,15 @@ namespace SLE.Systems.Movement
 
         protected override void Dispose(bool disposing)
         {
-            if(disposing)
+            if (disposing)
             {
                 if (moversTransformList.isCreated)
                     moversTransformList.Dispose();
             }
 
-            _instance = null;
-
-            activeMovers = null;
-
-            _cacheMovements = null;
+            _instance          = null;
+            activeMovers       = null;
+            _cacheMovements    = null;
             _cacheMovementData = null;
 
             base.Dispose(disposing);
@@ -176,7 +174,7 @@ namespace SLE.Systems.Movement
             if (locked) return handle;
 
             int length = _cacheMovements.Length;
-            fixed(MovementData* moverDataPtr = &_cacheMovementData[0])
+            fixed (MovementData* moverDataPtr = &_cacheMovementData[0])
             {
                 for (int i = 0; i < length; i++)
                 {

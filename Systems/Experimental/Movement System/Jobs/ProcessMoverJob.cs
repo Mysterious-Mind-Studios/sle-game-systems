@@ -3,14 +3,13 @@ using UnityEngine;
 using UnityEngine.Jobs;
 
 using Unity.Burst;
-using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 
 
-namespace SLE.Systems.Movement.Jobs
+namespace SLE.Systems.Experimental.Movement.Jobs
 {
-    using SLE.Systems.Movement.Data;
+    using SLE.Systems.Experimental.Movement.Data;
 
     [BurstCompile]
     unsafe struct ProcessMoverJob : IJobParallelForTransform
