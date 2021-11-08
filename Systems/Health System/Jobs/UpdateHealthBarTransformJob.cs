@@ -14,7 +14,7 @@ namespace SLE.Systems.Health.Jobs
     unsafe struct UpdateHealthBarTransformJob : IJobParallelForTransform
     {
         [ReadOnly, NativeDisableUnsafePtrRestriction]
-        public HealthBarData* healthBarDataPtr;
+        internal HealthBarData* healthBarDataPtr;
 
         [ReadOnly]
         public float3 mainCameraForward;

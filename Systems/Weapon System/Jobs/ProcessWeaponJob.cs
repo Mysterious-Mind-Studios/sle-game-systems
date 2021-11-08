@@ -13,9 +13,9 @@ namespace SLE.Systems.Weapon.Jobs
     unsafe struct ProcessWeaponJob : IJobParallelFor
     {
         [NativeDisableUnsafePtrRestriction]
-        public WeaponData* weaponData;
+        internal WeaponData* weaponData;
         [NativeDisableUnsafePtrRestriction]
-        public Ammo*       weaponAmmo;
+        internal Ammo*       weaponAmmo;
 
         [ReadOnly]
         public float time;

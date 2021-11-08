@@ -22,7 +22,7 @@ namespace SLE.Systems.Selection
         internal static event Action<ISelectable> onDestroy;
 
         [SerializeField]
-        private GameObject hLSelection;
+        private GameObject selectionHL;
 
         [Space]
         [SerializeField]
@@ -58,7 +58,7 @@ namespace SLE.Systems.Selection
             
             selectionEvents.onSelection?.Invoke();
             
-            hLSelection?.SetActive(isSelected);
+            selectionHL?.SetActive(isSelected);
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace SLE.Systems.Selection
             
             selectionEvents.onDeselection?.Invoke();
             
-            hLSelection?.SetActive(isSelected);
+            selectionHL?.SetActive(isSelected);
         }
     }
 }

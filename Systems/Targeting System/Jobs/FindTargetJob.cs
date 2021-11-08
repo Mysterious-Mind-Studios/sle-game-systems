@@ -13,10 +13,10 @@ namespace SLE.Systems.Targeting.Jobs
     unsafe struct FindTargetJob : IJobParallelFor
     {
         [NativeDisableUnsafePtrRestriction]
-        public DetectorData* detectorData;
+        internal DetectorData* detectorData;
 
         [ReadOnly, NativeDisableUnsafePtrRestriction]
-        public TargetData* targetData;
+        internal TargetData* targetData;
 
         [ReadOnly]
         public int targetDataLength;

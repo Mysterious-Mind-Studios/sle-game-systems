@@ -449,18 +449,19 @@ namespace SLE.Systems.Health
 
                 if (updateVisualHealthChanges)
                 {
-                    NativeArray<HealthData> healthData = new NativeArray<HealthData>(_cacheHealthData, Allocator.TempJob);
-
-                    UpdateHealthBarFillTransformJob updateHealthBarFillTransformJob = new UpdateHealthBarFillTransformJob
+                    fixed (HealthData* healthDataPtr = &_cacheHealthData[0])
                     {
-                        healthDataArray = healthData
-                    };
+                        UpdateHealthBarFillTransformJob updateHealthBarFillTransformJob = new UpdateHealthBarFillTransformJob
+                        {
+                            healthDataPtr = healthDataPtr
+                        };
 
-                    var jobHandle2 = updateHealthBarFillTransformJob.Schedule(healthBarFillTransformList, jobHandle1);
+                        var jobHandle2 = updateHealthBarFillTransformJob.Schedule(healthBarFillTransformList, jobHandle1);
 
-                    updateVisualHealthChanges = false;
+                        updateVisualHealthChanges = false;
                     
-                    return jobHandle2;
+                        return jobHandle2;
+                    }
                 }
                 
                 return jobHandle1;
