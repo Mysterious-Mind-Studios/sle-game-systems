@@ -1,6 +1,6 @@
 # SLE Game Systems for Unity® Engine
 
-<b><i>Attention: This repo is kind of abandoned, since I'm still studying the concepts of Data-Oriented design and the way things works, I'm going to come back here in the future to reuse all of this code but in a different manner. I'm working to do my own Game Engine and I'll port this code to it in the future. I hope you understand =). Enjoy.</i></b>
+<b><i>Attention: This repo is sort of abandoned, since I'm still studying the concepts of Data-Oriented design and the way things works, I'm going to come back here in the future to reuse all of this code but in a different manner. I'm working to do my own Game Engine and I'll port this code to it in the future. I hope you understand =). Enjoy.</i></b>
 
 The SLE Game Systems is a pack of APIs made to work with Unity® Engine with the main focus on performance by defaulft.
 
